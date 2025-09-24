@@ -92,5 +92,7 @@ function generateQR() {
         text: qrData,
         width: 200,
         height: 200
+            let websiteURL = "https://yourusername.github.io/qr-code-website/";
       });
+
     }
