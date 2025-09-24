@@ -1,74 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Code Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR Details Viewer</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f7f7f7;
+    :root{
+      --bg:#f7f8fb; --card:#fff; --muted:#6b7280; --accent:#2563eb;
     }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 400px;
-    }
-    .field-group {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-    }
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    #qrcode {
-      margin-top: 20px;
-    }
+    body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);padding:28px;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+    .card{background:var(--card);padding:22px;border-radius:12px;box-shadow:0 6px 20px rgba(20,20,50,.08);width:100%;max-width:520px}
+    h1{margin:0 0 6px;font-size:20px}
+    p.lead{margin:0 0 18px;color:var(--muted);font-size:13px}
+    .row{display:flex;gap:8px;margin-bottom:12px}
+    .field{flex:1;display:flex;align-items:center;background:#f2f6ff;border-radius:8px;padding:8px 10px;border:1px solid rgba(16,24,40,.03)}
+    .field input{flex:1;border:0;background:transparent;outline:0;font-size:15px}
+    .btn{border:0;padding:8px 10px;border-radius:8px;background:transparent;cursor:pointer;font-weight:600}
+    .btn.copy{background:#eef2ff;color:var(--accent);border:1px solid rgba(37,99,235,.12)}
+    .hint{font-size:12px;color:var(--muted);margin-top:12px}
+    .big {font-size:13px;padding:10px;border-radius:8px}
+    .action-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+    .small{font-size:12px;color:var(--muted)}
+    .notice{font-size:12px;color:#b45309;background:#fffbeb;padding:10px;border-radius:8px;margin-bottom:10px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>QR Code Website</h2>
-    <p>When scanned, this QR opens your website.</p>
+  <div class="card" role="main">
+    <h1>QR Details Viewer</h1>
+    <p class="lead">This page reads details from the scanned QR's URL and shows them below. Use copy buttons to copy each field.</p>
 
-    <button onclick="generateQR()">Generate Website QR</button>
-    <div id="qrcode"></div>
+    <div id="insecure-warning" class="notice" style="display:none;">
+      Warning: embedding passwords in URLs/QR codes is insecure. Use short-lived tokens or server lookup for production.
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <input id="fn" placeholder="First name" readonly />
+        <button class="btn copy" data-target="fn" title="Copy first name">Copy</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <input id="sn" placeholder="Second name" readonly />
+        <button class="btn copy" data-target="sn" title="Copy second name">Copy</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <input id="email" placeholder="Email" readonly />
+        <button class="btn copy" data-target="email" title="Copy email">Copy</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <input id="pw" type="password" placeholder="Password" readonly />
+        <button id="togglePw" class="btn" title="Show/hide">Show</button>
+        <button class="btn copy" data-target="pw" title="Copy password">Copy</button>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="small">Raw URL: <span id="rawUrl" class="small"></span></div>
+      <div><button id="downloadBtn" class="btn big">Download as TXT</button></div>
+    </div>
+
+    <p class="hint">If nothing appears, the QR likely doesn't include `?fn=...&sn=...&email=...&pw=...` parameters. Example URL format shown below.</p>
+
+    <pre style="background:#0f172a;color:#f8fafc;padding:10px;border-radius:8px;font-size:13px;overflow:auto">
+Example:
+https://your-username.github.io/your-repo/?fn=Saif&sn=Ali&email=saif%40icloud.com&pw=MySecret123
+    </pre>
   </div>
 
-  <script>
-    // Generate QR that points to your GitHub Pages site
-    function generateQR() {
-      let websiteURL = "https://yourusername.github.io/qr-code-website/"; 
-      document.getElementById("qrcode").innerHTML = ""; // Clear old QR
-      new QRCode(document.getElementById("qrcode"), {
-        text: websiteURL,
-        width: 200,
-        height: 200
-      });
+<script>
+  // Helper: get URL parameter safely
+  function getParam(name) {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.has(name) ? params.get(name) : '';
+    } catch (e) {
+      return '';
     }
-  </script>
+  }
+
+  function decodeSafe(s){
+    if(!s) return '';
+    try { return decodeURIComponent(s.replace(/\+/g,' ')); }
+    catch(e){ return s; }
+  }
+
+  // Populate values
+  const fn = decodeSafe(getParam('fn'));
+  const sn = decodeSafe(getParam('sn'));
+  const email = decodeSafe(getParam('email'));
+  const pw = decodeSafe(getParam('pw'));
+
+  document.getElementById('fn').value = fn;
+  document.getElementById('sn').value = sn;
+  document.getElementById('email').value = email;
+  document.getElementById('pw').value = pw;
+
+  // Show raw URL (for debugging)
+  document.getElementById('rawUrl').textContent = window.location.href;
+
+  // Show insecure warning if pw present
+  if (pw) document.getElementById('insecure-warning').style.display = 'block';
+
+  // Copy buttons
+  document.querySelectorAll('.btn.copy').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const target = btn.getAttribute('data-target');
+      const val = document.getElementById(target).value || '';
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'Copied';
+        setTimeout(()=> btn.textContent = 'Copy', 1200);
+      } catch(err){
+        // fallback: select + execCommand
+        const input = document.getElementById(target);
+        input.readOnly = false;
+        input.select();
+        document.execCommand && document.execCommand('copy');
+        input.readOnly = true;
+        btn.textContent = 'Copied';
+        setTimeout(()=> btn.textContent = 'Copy', 1200);
+      }
+    });
+  });
+
+  // Password toggle
+  const toggle = document.getElementById('togglePw');
+  toggle.addEventListener('click', ()=>{
+    const p = document.getElementById('pw');
+    if (p.type === 'password') { p.type = 'text'; toggle.textContent = 'Hide'; }
+    else { p.type = 'password'; toggle.textContent = 'Show'; }
+  });
+
+  // Download as .txt (very small helper)
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const content =
+`First name: ${document.getElementById('fn').value}
+Second name: ${document.getElementById('sn').value}
+Email: ${document.getElementById('email').value}
+Password: ${document.getElementById('pw').value}
+URL: ${window.location.href}
+`;
+    const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'qr-details.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Optional: if no params, show placeholders or helpful message (kept minimal)
+  if (!fn && !sn && !email && !pw) {
+    // leave placeholders, but you could show a big message here
+    // e.g., show instructions to create QR with query parameters
+  }
+</script>
 </body>
 </html>
