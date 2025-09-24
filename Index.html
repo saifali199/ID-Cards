@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f7f7f7;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 400px;
+    }
+    .field-group {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>QR Code Website</h2>
+    <p>When scanned, this QR opens your website.</p>
+
+    <button onclick="generateQR()">Generate Website QR</button>
+    <div id="qrcode"></div>
+  </div>
+
+  <script>
+    // Generate QR that points to your GitHub Pages site
+    function generateQR() {
+      let websiteURL = "https://yourusername.github.io/qr-code-website/"; 
+      document.getElementById("qrcode").innerHTML = ""; // Clear old QR
+      new QRCode(document.getElementById("qrcode"), {
+        text: websiteURL,
+        width: 200,
+        height: 200
+      });
+    }
+  </script>
+</body>
+</html>
