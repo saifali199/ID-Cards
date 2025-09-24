@@ -1,0 +1,33 @@
+script src=httpscdnjs.cloudflare.comajaxlibsqrcodejs1.0.0qrcode.min.jsscript
+  
+
+
+  div class=container
+    h2QR Code Generatorh2
+    
+    div class=field-group
+      input type=text id=fname placeholder=First Name
+      button onclick=copyText('fname')📋button
+    div
+    
+    div class=field-group
+      input type=text id=lname placeholder=Last Name
+      button onclick=copyText('lname')📋button
+    div
+    
+    div class=field-group
+      input type=email id=email placeholder=Email (auto-generated)
+      button type=button onclick=generateEmail()Gen Emailbutton
+      button onclick=copyText('email')📋button
+    div
+    
+    div class=field-group
+      input type=text id=password placeholder=Password (auto-generated)
+      button type=button onclick=generatePassword()Gen Passbutton
+      button onclick=copyText('password')📋button
+    div
+    
+    br
+    button onclick=generateQR()Generate QRbutton
+    div id=qrcodediv
+  div
