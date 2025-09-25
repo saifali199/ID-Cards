@@ -1,131 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>QR Code Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f7f7f7;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 400px;
-    }
-    .field-group {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-    }
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    #qrcode {
-      margin-top: 20px;
-    }
+    body { font-family: Arial, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; background:#f8f9fc; }
+    .card { background:#fff; padding:30px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.1); width:360px; text-align:center; }
+    h2 { margin-bottom:20px; }
+    input { width: calc(100% - 90px); padding:10px; margin:6px 0; border:1px solid #ccc; border-radius:6px; }
+    .row { display:flex; align-items:center; }
+    button { margin-left:6px; padding:10px; background:#007bff; border:none; border-radius:6px; color:#fff; cursor:pointer; }
+    #qrcode { margin-top:20px; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="card">
     <h2>QR Code Generator</h2>
-    
-    <div class="field-group">
-      <input type="text" id="fname" placeholder="First Name">
-      <button onclick="copyText('fname')">📋</button>
+
+    <div class="row">
+      <input id="first" placeholder="First Name">
+      <button onclick="copyVal('first')">📋</button>
     </div>
-    
-    <div class="field-group">
-      <input type="text" id="lname" placeholder="Last Name">
-      <button onclick="copyText('lname')">📋</button>
+    <div class="row">
+      <input id="last" placeholder="Last Name">
+      <button onclick="copyVal('last')">📋</button>
     </div>
-    
-    <div class="field-group">
-      <input type="email" id="email" placeholder="Email (auto-generated)">
-      <button type="button" onclick="generateEmail()">Gen Email</button>
-      <button onclick="copyText('email')">📋</button>
+    <div class="row">
+      <input id="email" placeholder="Email (auto-generated)">
+      <button onclick="genEmail()">Gen Email</button>
+      <button onclick="copyVal('email')">📋</button>
     </div>
-    
-    <div class="field-group">
-      <input type="text" id="password" placeholder="Password (auto-generated)">
-      <button type="button" onclick="generatePassword()">Gen Pass</button>
-      <button onclick="copyText('password')">📋</button>
+    <div class="row">
+      <input id="password" placeholder="Password (auto-generated)">
+      <button onclick="genPass()">Gen Pass</button>
+      <button onclick="copyVal('password')">📋</button>
     </div>
-    
-    <br>
-    <button onclick="generateQR()">Generate QR</button>
+
+    <button style="margin-top:10px" onclick="makeQR()">Generate QR</button>
     <div id="qrcode"></div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    // Copy text function
-    function copyText(fieldId) {
-      let copyField = document.getElementById(fieldId);
-      copyField.select();
-      copyField.setSelectionRange(0, 99999); // for mobile
-      navigator.clipboard.writeText(copyField.value);
-      alert("Copied: " + copyField.value);
+    function genEmail() {
+      const f = document.getElementById('first').value || 'user';
+      const l = document.getElementById('last').value || 'demo';
+      document.getElementById('email').value = f.toLowerCase() + '.' + l.toLowerCase() + Math.floor(Math.random()*1000) + '@icloud.com';
     }
-
-    // Generate random iCloud email
-    function generateEmail() {
-      let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-      let username = "";
-      for (let i = 0; i < 8; i++) {
-        username += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      let email = username + "@icloud.com";
-      document.getElementById("email").value = email;
+    function genPass(len=9) {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let pass = '';
+      for (let i=0; i<len; i++) pass += chars[Math.floor(Math.random()*chars.length)];
+      document.getElementById('password').value = pass;
     }
-
-    // Generate random password
-    function generatePassword() {
-      let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-      let pass = "";
-      for (let i = 0; i < 10; i++) {
-        pass += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      document.getElementById("password").value = pass;
+    async function copyVal(id) {
+      const val = document.getElementById(id).value;
+      await navigator.clipboard.writeText(val);
+      alert("Copied: " + val);
     }
+    function makeQR() {
+      const f = encodeURIComponent(document.getElementById('first').value);
+      const l = encodeURIComponent(document.getElementById('last').value);
+      const e = encodeURIComponent(document.getElementById('email').value);
+      const p = encodeURIComponent(document.getElementById('password').value);
 
-    // Generate QR code with form data
-    function generateQR() {
-      let fname = document.getElementById("fname").value;
-      let lname = document.getElementById("lname").value;
-      let email = document.getElementById("email").value;
-      let password = document.getElementById("password").value;
+      const url = location.origin + location.pathname.replace('generator.html','') + 'form.html'
+                + `?first=${f}&last=${l}&email=${e}&pass=${p}`;
 
-      let qrData = `First Name: ${fname}\nLast Name: ${lname}\nEmail: ${email}\nPassword: ${password}`;
-      
-      document.getElementById("qrcode").innerHTML = ""; // Clear old QR
-      new QRCode(document.getElementById("qrcode"), {
-        text: qrData,
-        width: 200,
-        height: 200
-      });
+      document.getElementById('qrcode').innerHTML = '';
+      new QRCode(document.getElementById('qrcode'), { text: url, width: 220, height: 220 });
     }
   </script>
 </body>
