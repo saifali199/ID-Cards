@@ -57,15 +57,14 @@
         <div class="terms">
           <h3>الشروط والأحكام</h3>
           <div class="box">
-            <p>محفظ حساب APPLE ID:</p>
+            <p>باستخدام هذه الصفحة فإنك توافق على ما يلي:</p>
             <ul>
-              <li>هذا الكارت هو محفظ لبيانات حسابك.</li>
-              <li>يتم انشاء الحساب عن طريق المستخدم وهو امن تماما ومضمون مدى الحياة.</li>
+              <li>الاستخدام لأغراض تعليمية وتجريبية فقط.</li>
+              <li>عدم إدخال أو مشاركة بيانات حقيقية أو حساسة.</li>
               <li>أنت المسؤول عن أي استخدام غير قانوني أو مخالف للسياسات.</li>
               <li>سيتم حفظ موافقتك محلياً على جهازك لتسهيل الاستخدام لاحقاً.</li>
-              <li>احرص على تفعيل ميزة العثور على iPhone قيد التشغيل.</li>
             </ul>
-            <p>سيتم استخدام رقم هاتفك لغرض تفعيل الحساب بشكل مضمون وامن يرجى استخدام رقمك الشخصي.</p>
+            <p>إن لم توافق، يُفضل مغادرة الصفحة وعدم المتابعة.</p>
           </div>
           <div class="bar">
             <button class="btn" onclick="decline()">لا أوافق</button>
@@ -147,7 +146,7 @@
 
   <script>
     // عدّل هذا إلى رابط GitHub Pages الخاص بك
-    const BASE_URL = "https://saifali199.github.io/ID-Cards/";
+    const BASE_URL = "https://YOUR_USERNAME.github.io/YOUR_REPO/";
     const TAC_KEY = "tacAccepted_v2";
     const $ = (id) => document.getElementById(id);
 
@@ -239,260 +238,5 @@ Phone: ${d.phone}`;
       a.href = img.src; a.download = "apple-id-card-qr.png"; document.body.appendChild(a); a.click(); a.remove();
     }
   </script>
-  <!-- === Floating Control Panel === -->
-<style>
-  .gear-btn{
-    position: fixed; inset-inline-end: 18px; inset-block-end: 18px; z-index: 60;
-    width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
-    background: #e53935; color:#fff; font-size:22px; box-shadow:0 10px 28px rgba(0,0,0,.35)
-  }
-  .cp-wrap{
-    position: fixed; inset-block: 0; inset-inline-end: 0; width: min(92vw, 360px); z-index: 70;
-    transform: translateX(100%); transition: transform .25s ease; background: #121722; color:#e7ecf3;
-    box-shadow: -12px 0 40px rgba(0,0,0,.5); display:flex; flex-direction:column;
-  }
-  .cp-wrap.open{ transform: translateX(0); }
-  .cp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
-  .cp-body{padding:12px 14px;overflow:auto}
-  .cp-body .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-  .cp-body input[type="color"]{height:36px;border:none;background:transparent}
-  .cp-body input[type="number"], .cp-body select{background:#0f131a;color:#e7ecf3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px}
-  .cp-body label{font-size:13px;opacity:.9}
-  .cp-row{display:flex;gap:10px}
-  .cp-foot{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:8px}
-  .cp-btn{background:#233044;color:#fff;border:none;border-radius:10px;padding:10px 12px;cursor:pointer}
-  .cp-btn.red{background:#e53935}
-</style>
-
-<button class="gear-btn" id="cpOpenBtn" title="الإعدادات">⚙️</button>
-
-<aside class="cp-wrap" id="cp">
-  <div class="cp-head">
-    <strong>الإعدادات</strong>
-    <button class="cp-btn" onclick="toggleCP()">✕</button>
-  </div>
-  <div class="cp-body">
-    <div class="field">
-      <label>اللون الأساسي</label>
-      <input type="color" id="cpPrimary" value="#e53935">
-    </div>
-    <div class="cp-row">
-      <div class="field" style="flex:1">
-        <label>تقويس الحواف (px)</label>
-        <input type="number" id="cpRadius" min="6" max="30" value="16">
-      </div>
-      <div class="field" style="flex:1">
-        <label>حجم الخط (نسبة %)</label>
-        <input type="number" id="cpScale" min="80" max="130" value="100">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>الاتجاه / اللغة</label>
-      <select id="cpDir">
-        <option value="rtl">عربي (RTL)</option>
-        <option value="ltr">English (LTR)</option>
-      </select>
-    </div>
-
-    <div class="cp-row">
-      <div class="field" style="flex:1">
-        <label>إظهار تاريخ الميلاد</label>
-        <select id="cpShowDob">
-          <option value="true">نعم</option><option value="false">لا</option>
-        </select>
-      </div>
-      <div class="field" style="flex:1">
-        <label>إظهار رقم الهاتف</label>
-        <select id="cpShowPhone">
-          <option value="true">نعم</option><option value="false">لا</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="cp-row">
-      <div class="field" style="flex:1">
-        <label>طول اسم الإيميل (قبل @)</label>
-        <input type="number" id="cpEmailLen" min="4" max="20" value="8">
-      </div>
-      <div class="field" style="flex:1">
-        <label>طول كلمة السر</label>
-        <input type="number" id="cpPassLen" min="6" max="24" value="10">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>خطوة الشروط والأحكام</label>
-      <select id="cpTerms">
-        <option value="on">مفعلة (تظهر أولاً)</option>
-        <option value="off">معطلة</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>نمط QR عند التوليد</label>
-      <select id="cpQRMode">
-        <option value="self">يفتح نفس الصفحة مع البيانات</option>
-        <option value="text">نص البيانات داخل QR</option>
-        <option value="link">رابط الموقع فقط</option>
-      </select>
-    </div>
-  </div>
-  <div class="cp-foot">
-    <button class="cp-btn" onclick="resetCP()">إعادة الضبط</button>
-    <button class="cp-btn red" onclick="saveCP()">حفظ وتطبيق</button>
-  </div>
-</aside>
-
-<script>
-  // ===== لوحة التحكم: حالة وتهيئة =====
-  const CP_KEY = "uiSettings_v1";
-  const cpDefaults = {
-    primary:"#e53935", radius:16, scale:100, dir:"rtl",
-    showDob:true, showPhone:true, emailLen:8, passLen:10,
-    terms:"on", qrMode:"self"
-  };
-
-  const cpEl = document.getElementById("cp");
-  document.getElementById("cpOpenBtn").addEventListener("click", toggleCP);
-  function toggleCP(){ cpEl.classList.toggle("open"); }
-
-  function loadCP(){
-    let s = localStorage.getItem(CP_KEY);
-    return s ? {...cpDefaults, ...JSON.parse(s)} : {...cpDefaults};
-  }
-  function uiSet(id, val){ document.getElementById(id).value = val; }
-
-  function mountCP(){
-    const s = loadCP();
-    uiSet("cpPrimary", s.primary);
-    uiSet("cpRadius", s.radius);
-    uiSet("cpScale", s.scale);
-    uiSet("cpDir", s.dir);
-    uiSet("cpShowDob", String(s.showDob));
-    uiSet("cpShowPhone", String(s.showPhone));
-    uiSet("cpEmailLen", s.emailLen);
-    uiSet("cpPassLen", s.passLen);
-    uiSet("cpTerms", s.terms);
-    uiSet("cpQRMode", s.qrMode);
-    applySettings(s, false);
-  }
-
-  function saveCP(){
-    const s = {
-      primary: document.getElementById("cpPrimary").value,
-      radius: +document.getElementById("cpRadius").value,
-      scale: +document.getElementById("cpScale").value,
-      dir: document.getElementById("cpDir").value,
-      showDob: document.getElementById("cpShowDob").value === "true",
-      showPhone: document.getElementById("cpShowPhone").value === "true",
-      emailLen: +document.getElementById("cpEmailLen").value,
-      passLen: +document.getElementById("cpPassLen").value,
-      terms: document.getElementById("cpTerms").value,
-      qrMode: document.getElementById("cpQRMode").value
-    };
-    localStorage.setItem(CP_KEY, JSON.stringify(s));
-    applySettings(s, true);
-    alert("تم الحفظ والتطبيق ✅");
-  }
-
-  function resetCP(){
-    localStorage.removeItem(CP_KEY);
-    mountCP();
-    alert("تمت إعادة الضبط");
-  }
-
-  // ===== تطبيق الإعدادات على الصفحة الحالية =====
-  function applySettings(s, scrollTop){
-    // ألوان وحجم/Radius
-    document.documentElement.style.setProperty("--accent", s.primary);
-    document.documentElement.style.setProperty("--accent-2", s.primary);
-    document.documentElement.style.setProperty("--radius", s.radius + "px");
-    document.body.style.fontSize = s.scale + "%";
-
-    // اتجاه الصفحة (يدير الـ dir والـlang)
-    document.documentElement.setAttribute("dir", s.dir);
-    document.documentElement.setAttribute("lang", s.dir === "rtl" ? "ar" : "en");
-
-    // إظهار/إخفاء الحقول (اعتمد IDs من نسختك الحالية)
-    const secDob = document.getElementById("dob")?.closest(".section");
-    const secPhone = document.getElementById("phone")?.closest(".section");
-    if(secDob) secDob.style.display = s.showDob ? "" : "none";
-    if(secPhone) secPhone.style.display = s.showPhone ? "" : "none";
-
-    // أطوال التوليد: نربطها بدوالك الحالية
-    window.__emailLen = s.emailLen;
-    window.__passLen = s.passLen;
-
-    // الشروط والأحكام (تعطيلها يعني تخطي الصفحة الأولى)
-    try{
-      const TAC_KEY = "tacAccepted_v2";
-      if(s.terms === "off"){
-        localStorage.setItem(TAC_KEY,"yes");
-        if(typeof showPage === "function") showPage("page-form");
-      }else{
-        // لا تجبر إظهار الشروط إن كان وافق سابقاً
-        if(localStorage.getItem(TAC_KEY)!=="yes" && typeof showPage==="function") showPage("page-terms");
-      }
-    }catch(e){}
-
-    // نمط QR: نُبدّل makeQR حسب الاختيار بدون كسر وظائفك الحالية
-    window.__qrMode = s.qrMode;
-
-    if(scrollTop){ window.scrollTo({top:0, behavior:"smooth"}); }
-  }
-
-  // ===== تعديل خفيف على مولداتك للاستفادة من الإعدادات =====
-  // إن كانت دوال genIcloud/genPassword موجودة مسبقاً، نلفّها:
-  (function wrapGenerators(){
-    if(typeof genIcloud === "function"){
-      const _old = genIcloud;
-      window.genIcloud = function(len){ _old(window.__emailLen ?? len ?? 8); }
-    }
-    if(typeof genPassword === "function"){
-      const _old = genPassword;
-      window.genPassword = function(len){ _old(window.__passLen ?? len ?? 10); }
-    }
-    // تبديل makeQR حسب __qrMode
-    if(typeof makeQR === "function"){
-      const _oldQR = makeQR;
-      window.makeQR = function(){
-        const mode = window.__qrMode || "self";
-        const target = document.getElementById("qrcode");
-        if(!target) return _oldQR();
-
-        target.innerHTML = "";
-
-        if(mode === "self"){
-          // كما في مشروعك: رابط الصفحة + بيانات
-          return _oldQR();
-        }
-        else if(mode === "text"){
-          // يجمّع البيانات كنص داخل الـQR
-          const d = (typeof collect === "function") ? collect() : {};
-          const text = `Email: ${d.email||""}
-Password: ${d.password||""}
-First Name: ${d.fname||""}
-Last Name: ${d.lname||""}
-Date of Birth: ${d.dob||""}
-Phone: ${d.phone||""}`;
-          new QRCode(target, {text, width:220, height:220, correctLevel: QRCode.CorrectLevel.H});
-        }
-        else if(mode === "link"){
-          // رابط الموقع فقط بدون باراميترات
-          const linkOnly = (typeof BASE_URL !== "undefined") ? BASE_URL : location.origin + location.pathname;
-          new QRCode(target, {text: linkOnly, width:220, height:220, correctLevel: QRCode.CorrectLevel.H});
-        }
-      }
-    }
-  })();
-
-  // ابدأ
-  mountCP();
-</script>
-
 </body>
 </html>
-
-
-
