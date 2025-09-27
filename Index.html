@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apple ID – Info Card</title>
+  <!-- QRCodeJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f131a;
+      --card:#171c24;
+      --muted:#8e99a8;
+      --text:#e7ecf3;
+      --accent:#e53935;   /* red */
+      --accent-2:#ff4d4f; /* bright red */
+      --field:#111722;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 10% -10%, #1d2531 0%, var(--bg) 55%) fixed;
+      color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .wrap{width:100%; max-width:540px}
+    .card{
+      background:var(--card);
+      border-radius:24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .head{
+      display:flex; align-items:center; gap:10px;
+      padding:18px 20px; background:linear-gradient(90deg,#1e252f, #171c24);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .apple{
+      width:28px; height:28px; display:grid; place-items:center;
+      background:var(--accent); border-radius:8px; font-weight:700;
+    }
+    .title{font-size:20px; font-weight:700; letter-spacing:.2px}
+    .section{padding:16px 16px 6px}
+    .label{
+      font-size:12px; color:var(--muted); margin:10px 4px 6px;
+      display:flex; justify-content:space-between; gap:8px;
+    }
+    .label span[dir="rtl"]{font-family: "Segoe UI", Tahoma, sans-serif}
+    .row{
+      display:flex; gap:10px;
+      background:var(--field); border:1px solid rgba(255,255,255,.05);
+      border-radius:14px; padding:10px; align-items:center;
+    }
+    input{
+      flex:1; background:transparent; border:none; outline:none; color:var(--text);
+      font-size:16px; padding:6px 4px;
+    }
+    .btn{
+      border:none; cursor:pointer; color:#fff; padding:10px 14px; border-radius:10px; font-weight:600;
+      background:#233044; transition:.18s transform ease, .18s background ease;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.red{background:var(--accent)}
+    .btn.red:hover{background:var(--accent-2)}
+    .btn.ghost{background:#212a38}
+    .copy{
+      background:var(--accent); width:46px; min-width:46px; height:42px; border:none; border-radius:10px; cursor:pointer;
+      display:grid; place-items:center; color:#fff; font-size:18px;
+    }
+    .actions{padding:14px 16px 18px; display:flex; flex-wrap:wrap; gap:10px}
+    .qrbox{display:grid; place-items:center; padding:18px}
+    .hint{color:var(--muted); font-size:12px; text-align:center; margin:0 18px 16px}
+    .pill{background:#223049; color:#cfe3ff; padding:4px 10px; border-radius:999px; font-size:12px}
+    .footer{padding:0 0 18px; text-align:center; color:var(--muted); font-size:12px}
+    .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:520px){ .two{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="head">
+        <div class="apple"></div>
+        <div class="title">Apple ID</div>
+        <span class="pill" style="margin-left:auto">Copy & QR</span>
+      </div>
+
+      <!-- Email -->
+      <div class="section">
+        <div class="label">
+          <span>Email</span>
+          <span dir="rtl">بريد إلكتروني</span>
+        </div>
+        <div class="row">
+          <button class="copy" title="Copy" onclick="copyField('email')">📋</button>
+          <input id="email" type="email" placeholder="name@icloud.com" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="section">
+        <div class="label">
+          <span>Password</span>
+          <span dir="rtl">كلمة المرور</span>
+        </div>
+        <div class="row">
+          <button class="copy" title="Copy" onclick="copyField('password')">📋</button>
+          <input id="password" type="text" placeholder="@VJQRgts" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Names -->
+      <div class="section two">
+        <div>
+          <div class="label">
+            <span>First Name</span>
+            <span dir="rtl">الاسم الأول</span>
+          </div>
+          <div class="row">
+            <button class="copy" title="Copy" onclick="copyField('fname')">📋</button>
+            <input id="fname" type="text" placeholder="Jorge">
+          </div>
+        </div>
+        <div>
+          <div class="label">
+            <span>Last Name</span>
+            <span dir="rtl">اسم العائلة</span>
+          </div>
+          <div class="row">
+            <button class="copy" title="Copy" onclick="copyField('lname')">📋</button>
+            <input id="lname" type="text" placeholder="Garcia">
+          </div>
+        </div>
+      </div>
+
+      <!-- DOB -->
+      <div class="section">
+        <div class="label">
+          <span>Date of Birth</span>
+          <span dir="rtl">تاريخ الميلاد</span>
+        </div>
+        <div class="row">
+          <button class="copy" title="Copy" onclick="copyField('dob')">📋</button>
+          <input id="dob" type="text" placeholder="1967/04/16">
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="section">
+        <div class="label">
+          <span>Phone Number</span>
+          <span dir="rtl">رقم الهاتف</span>
+        </div>
+        <div class="row">
+          <button class="copy" title="Copy" onclick="copyField('phone')">📋</button>
+          <input id="phone" type="text" placeholder="+1 555 0123 004">
+        </div>
+      </div>
+
+      <!-- Quick generators -->
+      <div class="actions">
+        <button class="btn ghost" onclick="genIcloud()">Generate iCloud Email</button>
+        <button class="btn ghost" onclick="genPassword()">Generate Password</button>
+        <button class="btn" onclick="copyAll()">Copy All</button>
+      </div>
+
+      <!-- QR + Link -->
+      <div class="actions">
+        <button class="btn red" onclick="makeQR()">Generate QR (opens this page with data)</button>
+        <button class="btn" onclick="copyShare()">Copy Share Link</button>
+        <button class="btn" onclick="downloadQR()">Download QR</button>
+      </div>
+
+      <p class="hint">QR contains your page URL with the data in the query string. Scanning it opens this same page and auto-fills all fields.</p>
+
+      <div class="qrbox">
+        <div id="qrcode"></div>
+      </div>
+
+      <div class="footer">© Apple ID Card (demo). Do not share real credentials.</div>
+    </div>
+  </div>
+
+  <script>
+    // === Replace with your GitHub Pages base URL ===
+    const BASE_URL = "https://saifali199.github.io/ID-Cards/"; 
+    // ===============================================
+
+    // Helpers
+    const $ = (id) => document.getElementById(id);
+
+    function toast(msg){
+      // simple toast via alert to keep it 1-file
+      try { navigator.clipboard && console.log(msg); } catch {}
+      alert(msg);
+    }
+
+    async function copyField(id){
+      const v = $(id).value || "";
+      if (!v){ toast("Field is empty"); return; }
+      await navigator.clipboard.writeText(v);
+      toast("Copied: " + v);
+    }
+
+    async function copyAll(){
+      const data = collect();
+      const text =
+`Email: ${data.email}
+Password: ${data.password}
+First Name: ${data.fname}
+Last Name: ${data.lname}
+Date of Birth: ${data.dob}
+Phone: ${data.phone}`;
+      await navigator.clipboard.writeText(text);
+      toast("All fields copied");
+    }
+
+    function genIcloud(len=8){
+      const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+      let u=""; for(let i=0;i<len;i++) u+=chars[Math.floor(Math.random()*chars.length)];
+      $("email").value = `${u}@icloud.com`;
+    }
+
+    function genPassword(len=10){
+      const chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+      let p=""; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)];
+      $("password").value = p;
+    }
+
+    // Collect form data
+    function collect(){
+      return {
+        email: $("email").value.trim(),
+        password: $("password").value.trim(),
+        fname: $("fname").value.trim(),
+        lname: $("lname").value.trim(),
+        dob: $("dob").value.trim(),
+        phone: $("phone").value.trim()
+      };
+    }
+
+    // Build URL with query params
+    function buildLink(){
+      const d = collect();
+      const params = new URLSearchParams(d);
+      return BASE_URL + "?" + params.toString();
+    }
+
+    // Prefill from URL on load
+    function prefillFromURL(){
+      const q = new URLSearchParams(location.search);
+      for (const key of ["email","password","fname","lname","dob","phone"]){
+        const v = q.get(key);
+        if (v !== null) $(key).value = v;
+      }
+    }
+
+    // Generate QR that links back to this site with data
+    function makeQR(){
+      const link = buildLink();
+      const target = $("qrcode");
+      target.innerHTML = "";
+      new QRCode(target, { text: link, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H });
+    }
+
+    async function copyShare(){
+      const link = buildLink();
+      await navigator.clipboard.writeText(link);
+      toast("Share link copied");
+    }
+
+    function downloadQR(){
+      const img = $("qrcode").querySelector("img");
+      if(!img){ toast("Generate a QR first"); return; }
+      const a = document.createElement("a");
+      a.href = img.src;
+      a.download = "apple-id-card-qr.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // Init
+    prefillFromURL();
+  </script>
+</body>
+</html>
