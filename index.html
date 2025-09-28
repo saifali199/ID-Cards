@@ -41,6 +41,9 @@
     .terms .box{background:#1a202c;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;line-height:1.8;max-height:52vh;overflow:auto}
     .terms ul{margin:0 1rem}
     .terms .bar{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+
+    /* زر عين كلمة السر */
+    .eye{background:#2a3345;color:#fff;border:none;border-radius:10px;width:46px;height:42px;display:grid;place-items:center;cursor:pointer}
   </style>
 </head>
 <body>
@@ -60,10 +63,10 @@
             <p>محفظ حساب APPLE ID:</p>
             <ul>
               <li>هذا الكارت هو محفظ لبيانات حسابك.</li>
-              <li>يتم انشاء الحساب عن طريق المستخدم وهو امن تماما ومضمون مدى الحياة.</li>
+              <li>يتم انشاء الحساب عن طريق المستخدم وهو آمن تماماً ومضمون مدى الحياة.</li>
               <li>أنت المسؤول عن أي استخدام غير قانوني أو مخالف للسياسات.</li>
               <li>سيتم حفظ موافقتك محلياً على جهازك لتسهيل الاستخدام لاحقاً.</li>
-              <li>احرص على تفعيل ميزة العثور على iPhone قيد التشغيل.</li>
+              <li>احرص على تفعيل ميزة العثور على iPhone.</li>
             </ul>
             <p>إن لم توافق، يُفضل مغادرة الصفحة وعدم المتابعة.</p>
           </div>
@@ -88,7 +91,8 @@
           <div class="label"><span>كلمة المرور</span><span>Password</span></div>
           <div class="row">
             <button class="copy" title="نسخ" onclick="copyField('password')">📋</button>
-            <input id="password" type="text" placeholder="@VJQRgts" autocomplete="off">
+            <input id="password" type="password" placeholder="@VJQRgts" autocomplete="off">
+            <button class="eye" title="إظهار/إخفاء" onclick="togglePass()">👁️</button>
           </div>
         </div>
 
@@ -128,8 +132,15 @@
         <div class="actions">
           <button class="btn ghost" onclick="genIcloud()">توليد إيميل iCloud</button>
           <button class="btn ghost" onclick="genPassword()">توليد كلمة مرور</button>
-          <button class="btn" onclick="copyAll()">نسخ كل الحقول</button>
-          <button class="btn" onclick="goToTerms()">الرجوع إلى الشروط</button>
+          <button class="btn" onclick="generateAll()">توليد الكل</button>
+          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="copyJSON()">نسخ JSON</button>
+          <button class="btn" onclick="copyCSV()">نسخ CSV</button>
+          <button class="btn" onclick="clearAll()">تفريغ الحقول</button>
+          <button class="btn" onclick="revokeConsent()">إلغاء الموافقة</button>
         </div>
 
         <div class="actions">
@@ -138,7 +149,7 @@
           <button class="btn" onclick="downloadQR()">تحميل QR</button>
         </div>
 
-        <p class="hint">رمز QR يحتوي رابط هذه الصفحة مع البيانات في رابط الاستعلام، وعند مسحه تُملأ الحقول تلقائياً.</p>
+        <p class="hint">رمز QR يحتوي رابط هذه الصفحة مع البيانات ضمن رابط الاستعلام. عند مسحه تُملأ الحقول تلقائياً.</p>
         <div class="qrbox"><div id="qrcode"></div></div>
         <div class="footer">© نسخة تجريبية — لا تستخدم بيانات حقيقية.</div>
       </div>
@@ -146,8 +157,10 @@
   </div>
 
   <script>
-    // عدّل هذا إلى رابط GitHub Pages الخاص بك
-    const BASE_URL = "https://saifali199.github.io/ID-Cards/";
+    // === الإعدادات ===
+    // اتركه فارغًا "" ليستخدم رابط الصفحة تلقائيًا
+    // أو ضع رابط GitHub Pages الثابت إن أحببت
+    let BASE_URL = ""; // مثال ثابت: "https://saifali199.github.io/ID-Cards/";
     const TAC_KEY = "tacAccepted_v2";
     const $ = (id) => document.getElementById(id);
 
@@ -171,8 +184,18 @@
       prefillFromURL();
     })();
 
-    // وظائف الحقول والنسخ
+    // Helpers
     function toast(msg){ alert(msg); }
+    function dynBase(){
+      if (BASE_URL && BASE_URL.trim().length) {
+        return BASE_URL;
+      }
+      // يبني الرابط من الصفحة الحالية (من دون الهاش/البارامترات)
+      const url = new URL(location.href);
+      return url.origin + url.pathname.replace(/index\.html$/,'');
+    }
+
+    // نسخ/تفريغ
     async function copyField(id){
       const v = $(id).value || "";
       if(!v){ toast("الحقل فارغ"); return; }
@@ -189,8 +212,34 @@ Last Name: ${d.lname}
 Date of Birth: ${d.dob}
 Phone: ${d.phone}`;
       await navigator.clipboard.writeText(text);
-      toast("تم نسخ جميع الحقول");
+      toast("تم نسخ جميع الحقول (Text)");
     }
+    async function copyJSON(){
+      const d = collect();
+      await navigator.clipboard.writeText(JSON.stringify(d, null, 2));
+      toast("تم نسخ JSON");
+    }
+    async function copyCSV(){
+      const d = collect();
+      const header = "email,password,fname,lname,dob,phone";
+      const row = [
+        d.email, d.password, d.fname, d.lname, d.dob, d.phone
+      ].map(x => `"${String(x||"").replace(/"/g, '""')}"`).join(",");
+      await navigator.clipboard.writeText(header + "\n" + row);
+      toast("تم نسخ CSV");
+    }
+    function clearAll(){
+      ["email","password","fname","lname","dob","phone"].forEach(id => $(id).value="");
+      $("qrcode").innerHTML = "";
+      toast("تم التفريغ");
+    }
+    function revokeConsent(){
+      localStorage.removeItem(TAC_KEY);
+      showPage("page-terms");
+      toast("تم إلغاء الموافقة والرجوع للشروط");
+    }
+
+    // توليد
     function genIcloud(len=8){
       const chars="abcdefghijklmnopqrstuvwxyz0123456789";
       let u=""; for(let i=0;i<len;i++) u+=chars[Math.floor(Math.random()*chars.length)];
@@ -201,6 +250,17 @@ Phone: ${d.phone}`;
       let p=""; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)];
       $("password").value = p;
     }
+    function generateAll(){
+      genIcloud();
+      genPassword();
+      makeQR();
+    }
+    function togglePass(){
+      const f = $("password");
+      f.type = (f.type === "password") ? "text" : "password";
+    }
+
+    // جمع/بناء/تعبئة
     function collect(){
       return {
         email:$("email").value.trim(),
@@ -213,8 +273,15 @@ Phone: ${d.phone}`;
     }
     function buildLink(){
       const d = collect();
+      // تحقّق بسيط: الإيميل + كلمة المرور مطلوبان لإنشاء رابط/QR
+      if(!d.email || !d.password){
+        return null;
+      }
       const params = new URLSearchParams(d);
-      return BASE_URL + "?" + params.toString();
+      // تأكد من وجود / في النهاية
+      let base = dynBase();
+      if (!base.endsWith("/")) base += "/";
+      return base + "?" + params.toString();
     }
     function prefillFromURL(){
       const q = new URLSearchParams(location.search);
@@ -222,13 +289,17 @@ Phone: ${d.phone}`;
         const v = q.get(k); if(v!==null) $(k).value = v;
       });
     }
+
+    // QR و مشاركة
     function makeQR(){
       const link = buildLink();
+      if(!link){ toast("الرجاء تعبئة البريد وكلمة المرور على الأقل"); return; }
       $("qrcode").innerHTML = "";
       new QRCode($("qrcode"), {text: link, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H});
     }
     async function copyShare(){
       const link = buildLink();
+      if(!link){ toast("لا يوجد بيانات كافية لبناء الرابط"); return; }
       await navigator.clipboard.writeText(link);
       toast("تم نسخ رابط المشاركة");
     }
@@ -241,4 +312,3 @@ Phone: ${d.phone}`;
   </script>
 </body>
 </html>
-
