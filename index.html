@@ -28,7 +28,7 @@
     .actions{padding:14px 16px 18px;display:flex;flex-wrap:wrap;gap:10px}
     .qrbox{display:grid;place-items:center;padding:18px}
     .hint{color:var(--muted);font-size:12px;text-align:center;margin:0 18px 16px}
-    .footer{padding:0 0 18px;text-align:center;color:#muted;font-size:12px}
+    .footer{padding:0 0 18px;text-align:center;color:#8e99a8;font-size:12px}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media (max-width:560px){.two{grid-template-columns:1fr}}
 
@@ -179,13 +179,13 @@
   <script>
     // === الإعدادات ===
     // اجعلها "" ليستخدم الرابط الحالي تلقائيًا، أو ضع رابط GitHub Pages الثابت إن رغبت
-    let BASE_URL = ""; // مثال: "https://saifali199.github.io/ID-Cards/";
+    let BASE_URL = ""; // مثال: "https://YOURUSER.github.io/YOURREPO/";
     const TAC_KEY = "tacAccepted_v2";
     const $ = (id) => document.getElementById(id);
 
     let READ_ONLY = false; // يتفعّل تلقائيًا عند وجود باراميترات
 
-    /* --------- دوال عرض الصفحات (صلبة) --------- */
+    /* --------- دوال عرض الصفحات --------- */
     function showPage(whichId){
       const pages = document.querySelectorAll(".page");
       pages.forEach(p => { p.classList.remove("active"); p.style.display = "none"; });
@@ -197,11 +197,12 @@
         if (stepTag) stepTag.textContent = (whichId === "page-terms") ? "الخطوة 1/2" : "الخطوة 2/2";
       }
     }
-    function goToTerms(){ showPage("page-terms"); localStorage.removeItem(TAC_KEY); }
+    function goToTerms(){ showPage("page-terms"); try{ localStorage.removeItem(TAC_KEY); }catch(_){} }
     function acceptTerms(e){
       if (e) e.preventDefault();
       try{ localStorage.setItem(TAC_KEY, "yes"); }catch(_){}
       showPage("page-form");
+      if (READ_ONLY){ lockUIForViewer(); } // في وضع المشاهدة نغلق التعديل بعد الموافقة
     }
     function decline(e){
       if (e) e.preventDefault();
@@ -218,13 +219,13 @@
       prefillFromURL();
       detectReadOnlyByURL();
 
-      // تجاوز الشروط في وضع العرض فقط
-      if (READ_ONLY || localStorage.getItem(TAC_KEY)==="yes"){
+      // ❗ الشروط تظهر دائماً إذا لم يتم قبولها بعد — حتى في وضع المشاهدة
+      if (localStorage.getItem(TAC_KEY) === "yes"){
         showPage("page-form");
+        if (READ_ONLY){ lockUIForViewer(); }
       } else {
         showPage("page-terms");
       }
-      if (READ_ONLY){ lockUIForViewer(); }
     });
 
     /* --------- مساعدات --------- */
@@ -237,6 +238,7 @@
     function detectReadOnlyByURL(){
       const q = new URLSearchParams(location.search);
       READ_ONLY = ["email","password","fname","lname","dob","phone"].some(k => q.get(k));
+      // إظهار شريط "عرض فقط" لاحقاً بعد الموافقة والانتقال لصفحة البيانات
     }
     function lockUIForViewer(){
       $("roBanner").classList.remove("hidden");
@@ -290,7 +292,7 @@ Phone: ${d.phone}`;
     }
     function revokeConsent(){
       if(READ_ONLY){ toast("غير متاح في وضع العرض فقط"); return; }
-      localStorage.removeItem(TAC_KEY);
+      try{ localStorage.removeItem(TAC_KEY); }catch(_){}
       showPage("page-terms");
       toast("تم إلغاء الموافقة والرجوع للشروط");
     }
