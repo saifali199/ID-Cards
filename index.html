@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Apple ID – بطاقة معلومات</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- لحفظ البطاقة كصورة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root{--bg:#0f131a;--card:#171c24;--muted:#8e99a8;--text:#e7ecf3;--accent:#e53935;--accent-2:#ff4d4f;--field:#111722}
     *{box-sizing:border-box}
@@ -44,16 +46,27 @@
 
     /* زر عين كلمة السر */
     .eye{background:#2a3345;color:#fff;border:none;border-radius:10px;width:46px;height:42px;display:grid;place-items:center;cursor:pointer}
+
+    /* وضع المشاهدة (عرض فقط) */
+    .readonly input{pointer-events:none}
+    .banner{
+      text-align:center;background:#203048;color:#cfe3ff;padding:8px 12px;
+      border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .hidden{display:none !important}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="card" id="card-root">
       <div class="head">
         <div class="apple"></div>
         <div class="title">Apple ID</div>
         <span class="pill" id="stepTag">الخطوة 1/2</span>
       </div>
+
+      <!-- شريط وضع القراءة فقط (يظهر تلقائياً في وضع المشاهدة) -->
+      <div id="roBanner" class="banner hidden">وضع العرض فقط — يمكنك النسخ أو حفظ البطاقة كصورة</div>
 
       <!-- الصفحة 1: الشروط والأحكام -->
       <div id="page-terms" class="page active">
@@ -108,207 +121,3 @@
             <div class="label"><span>اسم العائلة</span><span>Last Name</span></div>
             <div class="row">
               <button class="copy" title="نسخ" onclick="copyField('lname')">📋</button>
-              <input id="lname" type="text" placeholder="Garcia">
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="label"><span>تاريخ الميلاد</span><span>Date of Birth</span></div>
-          <div class="row">
-            <button class="copy" title="نسخ" onclick="copyField('dob')">📋</button>
-            <input id="dob" type="text" placeholder="1967/04/16">
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="label"><span>رقم الهاتف</span><span>Phone Number</span></div>
-          <div class="row">
-            <button class="copy" title="نسخ" onclick="copyField('phone')">📋</button>
-            <input id="phone" type="text" placeholder="+1 555 0123 004">
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn ghost" onclick="genIcloud()">توليد إيميل iCloud</button>
-          <button class="btn ghost" onclick="genPassword()">توليد كلمة مرور</button>
-          <button class="btn" onclick="generateAll()">توليد الكل</button>
-          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
-        </div>
-
-        <div class="actions">
-          <button class="btn" onclick="copyJSON()">نسخ JSON</button>
-          <button class="btn" onclick="copyCSV()">نسخ CSV</button>
-          <button class="btn" onclick="clearAll()">تفريغ الحقول</button>
-          <button class="btn" onclick="revokeConsent()">إلغاء الموافقة</button>
-        </div>
-
-        <div class="actions">
-          <button class="btn red" onclick="makeQR()">توليد QR (يفتح نفس الصفحة بالبيانات)</button>
-          <button class="btn" onclick="copyShare()">نسخ رابط المشاركة</button>
-          <button class="btn" onclick="downloadQR()">تحميل QR</button>
-        </div>
-
-        <p class="hint">رمز QR يحتوي رابط هذه الصفحة مع البيانات ضمن رابط الاستعلام. عند مسحه تُملأ الحقول تلقائياً.</p>
-        <div class="qrbox"><div id="qrcode"></div></div>
-        <div class="footer">© نسخة تجريبية — لا تستخدم بيانات حقيقية.</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // === الإعدادات ===
-    // اتركه فارغًا "" ليستخدم رابط الصفحة تلقائيًا
-    // أو ضع رابط GitHub Pages الثابت إن أحببت
-    let BASE_URL = ""; // مثال ثابت: "https://saifali199.github.io/ID-Cards/";
-    const TAC_KEY = "tacAccepted_v2";
-    const $ = (id) => document.getElementById(id);
-
-    // التنقل بين الصفحات
-    function showPage(which){
-      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-      $(which).classList.add("active");
-      $("stepTag").textContent = (which === "page-terms") ? "الخطوة 1/2" : "الخطوة 2/2";
-    }
-    function goToTerms(){ showPage("page-terms"); localStorage.removeItem(TAC_KEY); }
-    function acceptTerms(){
-      localStorage.setItem(TAC_KEY,"yes");
-      showPage("page-form");
-    }
-    function decline(){ alert("تم إلغاء المتابعة."); }
-
-    // بدء التشغيل
-    (function init(){
-      if(localStorage.getItem(TAC_KEY)==="yes"){ showPage("page-form"); }
-      else{ showPage("page-terms"); }
-      prefillFromURL();
-    })();
-
-    // Helpers
-    function toast(msg){ alert(msg); }
-    function dynBase(){
-      if (BASE_URL && BASE_URL.trim().length) {
-        return BASE_URL;
-      }
-      // يبني الرابط من الصفحة الحالية (من دون الهاش/البارامترات)
-      const url = new URL(location.href);
-      return url.origin + url.pathname.replace(/index\.html$/,'');
-    }
-
-    // نسخ/تفريغ
-    async function copyField(id){
-      const v = $(id).value || "";
-      if(!v){ toast("الحقل فارغ"); return; }
-      await navigator.clipboard.writeText(v);
-      toast("تم النسخ: " + v);
-    }
-    async function copyAll(){
-      const d = collect();
-      const text =
-`Email: ${d.email}
-Password: ${d.password}
-First Name: ${d.fname}
-Last Name: ${d.lname}
-Date of Birth: ${d.dob}
-Phone: ${d.phone}`;
-      await navigator.clipboard.writeText(text);
-      toast("تم نسخ جميع الحقول (Text)");
-    }
-    async function copyJSON(){
-      const d = collect();
-      await navigator.clipboard.writeText(JSON.stringify(d, null, 2));
-      toast("تم نسخ JSON");
-    }
-    async function copyCSV(){
-      const d = collect();
-      const header = "email,password,fname,lname,dob,phone";
-      const row = [
-        d.email, d.password, d.fname, d.lname, d.dob, d.phone
-      ].map(x => `"${String(x||"").replace(/"/g, '""')}"`).join(",");
-      await navigator.clipboard.writeText(header + "\n" + row);
-      toast("تم نسخ CSV");
-    }
-    function clearAll(){
-      ["email","password","fname","lname","dob","phone"].forEach(id => $(id).value="");
-      $("qrcode").innerHTML = "";
-      toast("تم التفريغ");
-    }
-    function revokeConsent(){
-      localStorage.removeItem(TAC_KEY);
-      showPage("page-terms");
-      toast("تم إلغاء الموافقة والرجوع للشروط");
-    }
-
-    // توليد
-    function genIcloud(len=8){
-      const chars="abcdefghijklmnopqrstuvwxyz0123456789";
-      let u=""; for(let i=0;i<len;i++) u+=chars[Math.floor(Math.random()*chars.length)];
-      $("email").value = `${u}@icloud.com`;
-    }
-    function genPassword(len=10){
-      const chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-      let p=""; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)];
-      $("password").value = p;
-    }
-    function generateAll(){
-      genIcloud();
-      genPassword();
-      makeQR();
-    }
-    function togglePass(){
-      const f = $("password");
-      f.type = (f.type === "password") ? "text" : "password";
-    }
-
-    // جمع/بناء/تعبئة
-    function collect(){
-      return {
-        email:$("email").value.trim(),
-        password:$("password").value.trim(),
-        fname:$("fname").value.trim(),
-        lname:$("lname").value.trim(),
-        dob:$("dob").value.trim(),
-        phone:$("phone").value.trim()
-      };
-    }
-    function buildLink(){
-      const d = collect();
-      // تحقّق بسيط: الإيميل + كلمة المرور مطلوبان لإنشاء رابط/QR
-      if(!d.email || !d.password){
-        return null;
-      }
-      const params = new URLSearchParams(d);
-      // تأكد من وجود / في النهاية
-      let base = dynBase();
-      if (!base.endsWith("/")) base += "/";
-      return base + "?" + params.toString();
-    }
-    function prefillFromURL(){
-      const q = new URLSearchParams(location.search);
-      ["email","password","fname","lname","dob","phone"].forEach(k=>{
-        const v = q.get(k); if(v!==null) $(k).value = v;
-      });
-    }
-
-    // QR و مشاركة
-    function makeQR(){
-      const link = buildLink();
-      if(!link){ toast("الرجاء تعبئة البريد وكلمة المرور على الأقل"); return; }
-      $("qrcode").innerHTML = "";
-      new QRCode($("qrcode"), {text: link, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H});
-    }
-    async function copyShare(){
-      const link = buildLink();
-      if(!link){ toast("لا يوجد بيانات كافية لبناء الرابط"); return; }
-      await navigator.clipboard.writeText(link);
-      toast("تم نسخ رابط المشاركة");
-    }
-    function downloadQR(){
-      const img = $("qrcode").querySelector("img");
-      if(!img){ toast("ولّد QR أولاً"); return; }
-      const a = document.createElement("a");
-      a.href = img.src; a.download = "apple-id-card-qr.png"; document.body.appendChild(a); a.click(); a.remove();
-    }
-  </script>
-</body>
-</html>
