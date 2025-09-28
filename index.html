@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Apple ID – بطاقة معلومات</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- لحفظ البطاقة كصورة -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root{--bg:#0f131a;--card:#171c24;--muted:#8e99a8;--text:#e7ecf3;--accent:#e53935;--accent-2:#ff4d4f;--field:#111722}
@@ -29,7 +28,7 @@
     .actions{padding:14px 16px 18px;display:flex;flex-wrap:wrap;gap:10px}
     .qrbox{display:grid;place-items:center;padding:18px}
     .hint{color:var(--muted);font-size:12px;text-align:center;margin:0 18px 16px}
-    .footer{padding:0 0 18px;text-align:center;color:var(--muted);font-size:12px}
+    .footer{padding:0 0 18px;text-align:center;color:#muted;font-size:12px}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media (max-width:560px){.two{grid-template-columns:1fr}}
 
@@ -65,7 +64,7 @@
         <span class="pill" id="stepTag">الخطوة 1/2</span>
       </div>
 
-      <!-- شريط وضع القراءة فقط (يظهر تلقائياً في وضع المشاهدة) -->
+      <!-- يظهر في وضع العرض فقط -->
       <div id="roBanner" class="banner hidden">وضع العرض فقط — يمكنك النسخ أو حفظ البطاقة كصورة</div>
 
       <!-- الصفحة 1: الشروط والأحكام -->
@@ -84,8 +83,8 @@
             <p>إن لم توافق، يُفضل مغادرة الصفحة وعدم المتابعة.</p>
           </div>
           <div class="bar">
-            <button class="btn" onclick="decline()">لا أوافق</button>
-            <button class="btn red" onclick="acceptTerms()">موافق</button>
+            <button class="btn" type="button" id="declineBtn">لا أوافق</button>
+            <button class="btn red" type="button" id="agreeBtn">موافق</button>
           </div>
         </div>
       </div>
@@ -121,3 +120,262 @@
             <div class="label"><span>اسم العائلة</span><span>Last Name</span></div>
             <div class="row">
               <button class="copy" title="نسخ" onclick="copyField('lname')">📋</button>
+              <input id="lname" type="text" placeholder="Garcia">
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="label"><span>تاريخ الميلاد</span><span>Date of Birth</span></div>
+          <div class="row">
+            <button class="copy" title="نسخ" onclick="copyField('dob')">📋</button>
+            <input id="dob" type="text" placeholder="1967/04/16">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="label"><span>رقم الهاتف</span><span>Phone Number</span></div>
+          <div class="row">
+            <button class="copy" title="نسخ" onclick="copyField('phone')">📋</button>
+            <input id="phone" type="text" placeholder="+1 555 0123 004">
+          </div>
+        </div>
+
+        <!-- أزرار التحرير (مخفيّة في وضع العرض فقط) -->
+        <div class="actions" id="editActions1">
+          <button class="btn ghost" onclick="genIcloud()">توليد إيميل iCloud</button>
+          <button class="btn ghost" onclick="genPassword()">توليد كلمة مرور</button>
+          <button class="btn" onclick="generateAll()">توليد الكل</button>
+          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
+        </div>
+
+        <div class="actions" id="editActions2">
+          <button class="btn" onclick="copyJSON()">نسخ JSON</button>
+          <button class="btn" onclick="copyCSV()">نسخ CSV</button>
+          <button class="btn" onclick="clearAll()">تفريغ الحقول</button>
+          <button class="btn" onclick="revokeConsent()">إلغاء الموافقة</button>
+        </div>
+
+        <!-- أزرار المشاركة/QR (مخفيّة في وضع العرض فقط) -->
+        <div class="actions" id="qrActions">
+          <button class="btn red" onclick="makeQR()">توليد QR (يفتح نفس الصفحة بالبيانات)</button>
+          <button class="btn" onclick="copyShare()">نسخ رابط المشاركة</button>
+          <button class="btn" onclick="downloadQR()">تحميل QR</button>
+        </div>
+
+        <!-- أزرار وضع المشاهدة -->
+        <div class="actions hidden" id="viewActions">
+          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
+          <button class="btn red" onclick="saveCardImage()">حفظ البطاقة كصورة</button>
+        </div>
+
+        <p class="hint">في وضع المشاهدة، لا يمكن تعديل البيانات. يمكنك فقط النسخ أو حفظ البطاقة كصورة.</p>
+        <div class="qrbox"><div id="qrcode"></div></div>
+        <div class="footer">© نسخة تجريبية — لا تستخدم بيانات حقيقية.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === الإعدادات ===
+    // اجعلها "" ليستخدم الرابط الحالي تلقائيًا، أو ضع رابط GitHub Pages الثابت إن رغبت
+    let BASE_URL = ""; // مثال: "https://saifali199.github.io/ID-Cards/";
+    const TAC_KEY = "tacAccepted_v2";
+    const $ = (id) => document.getElementById(id);
+
+    let READ_ONLY = false; // يتفعّل تلقائيًا عند وجود باراميترات
+
+    /* --------- دوال عرض الصفحات (صلبة) --------- */
+    function showPage(whichId){
+      const pages = document.querySelectorAll(".page");
+      pages.forEach(p => { p.classList.remove("active"); p.style.display = "none"; });
+      const target = $(whichId);
+      if (target){
+        target.classList.add("active");
+        target.style.display = "block";
+        const stepTag = $("stepTag");
+        if (stepTag) stepTag.textContent = (whichId === "page-terms") ? "الخطوة 1/2" : "الخطوة 2/2";
+      }
+    }
+    function goToTerms(){ showPage("page-terms"); localStorage.removeItem(TAC_KEY); }
+    function acceptTerms(e){
+      if (e) e.preventDefault();
+      try{ localStorage.setItem(TAC_KEY, "yes"); }catch(_){}
+      showPage("page-form");
+    }
+    function decline(e){
+      if (e) e.preventDefault();
+      alert("تم إلغاء المتابعة.");
+    }
+
+    /* --------- تهيئة وربط الأزرار --------- */
+    document.addEventListener("DOMContentLoaded", () => {
+      const agreeBtn   = $("agreeBtn");
+      const declineBtn = $("declineBtn");
+      if (agreeBtn)   agreeBtn.addEventListener("click", acceptTerms);
+      if (declineBtn) declineBtn.addEventListener("click", decline);
+
+      prefillFromURL();
+      detectReadOnlyByURL();
+
+      // تجاوز الشروط في وضع العرض فقط
+      if (READ_ONLY || localStorage.getItem(TAC_KEY)==="yes"){
+        showPage("page-form");
+      } else {
+        showPage("page-terms");
+      }
+      if (READ_ONLY){ lockUIForViewer(); }
+    });
+
+    /* --------- مساعدات --------- */
+    function toast(msg){ alert(msg); }
+    function dynBase(){
+      if (BASE_URL && BASE_URL.trim().length) return BASE_URL;
+      const url = new URL(location.href);
+      return url.origin + url.pathname.replace(/index\.html$/,'');
+    }
+    function detectReadOnlyByURL(){
+      const q = new URLSearchParams(location.search);
+      READ_ONLY = ["email","password","fname","lname","dob","phone"].some(k => q.get(k));
+    }
+    function lockUIForViewer(){
+      $("roBanner").classList.remove("hidden");
+      ["email","password","fname","lname","dob","phone"].forEach(id=>{
+        const el=$(id);
+        el.setAttribute("readonly","readonly");
+        if (id!=="password"){ el.setAttribute("aria-readonly","true"); }
+      });
+      ["editActions1","editActions2","qrActions"].forEach(id=>$(id).classList.add("hidden"));
+      $("viewActions").classList.remove("hidden");
+      $("page-form").classList.add("readonly");
+    }
+
+    /* --------- نسخ/تفريغ/توليد --------- */
+    async function copyField(id){
+      const v = $(id).value || "";
+      if(!v){ toast("الحقل فارغ"); return; }
+      await navigator.clipboard.writeText(v);
+      toast("تم النسخ: " + v);
+    }
+    async function copyAll(){
+      const d = collect();
+      const text =
+`Email: ${d.email}
+Password: ${d.password}
+First Name: ${d.fname}
+Last Name: ${d.lname}
+Date of Birth: ${d.dob}
+Phone: ${d.phone}`;
+      await navigator.clipboard.writeText(text);
+      toast("تم نسخ جميع الحقول (Text)");
+    }
+    async function copyJSON(){
+      const d = collect();
+      await navigator.clipboard.writeText(JSON.stringify(d, null, 2));
+      toast("تم نسخ JSON");
+    }
+    async function copyCSV(){
+      const d = collect();
+      const header = "email,password,fname,lname,dob,phone";
+      const row = [d.email,d.password,d.fname,d.lname,d.dob,d.phone]
+        .map(x => `"${String(x||"").replace(/"/g,'""')}"`).join(",");
+      await navigator.clipboard.writeText(header + "\n" + row);
+      toast("تم نسخ CSV");
+    }
+    function clearAll(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      ["email","password","fname","lname","dob","phone"].forEach(id => $(id).value="");
+      $("qrcode").innerHTML = "";
+      toast("تم التفريغ");
+    }
+    function revokeConsent(){
+      if(READ_ONLY){ toast("غير متاح في وضع العرض فقط"); return; }
+      localStorage.removeItem(TAC_KEY);
+      showPage("page-terms");
+      toast("تم إلغاء الموافقة والرجوع للشروط");
+    }
+    function genIcloud(len=8){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+      let u=""; for(let i=0;i<len;i++) u+=chars[Math.floor(Math.random()*chars.length)];
+      $("email").value = `${u}@icloud.com`;
+    }
+    function genPassword(len=10){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      const chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+      let p=""; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)];
+      $("password").value = p;
+    }
+    function generateAll(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      genIcloud();
+      genPassword();
+      makeQR();
+    }
+    function togglePass(){
+      const f = $("password");
+      f.type = (f.type === "password") ? "text" : "password";
+    }
+
+    /* --------- جمع/رابط/تعبئة --------- */
+    function collect(){
+      return {
+        email:$("email").value.trim(),
+        password:$("password").value.trim(),
+        fname:$("fname").value.trim(),
+        lname:$("lname").value.trim(),
+        dob:$("dob").value.trim(),
+        phone:$("phone").value.trim()
+      };
+    }
+    function buildLink(){
+      const d = collect();
+      if(!d.email || !d.password) return null;
+      const params = new URLSearchParams(d);
+      let base = dynBase();
+      if (!base.endsWith("/")) base += "/";
+      return base + "?" + params.toString();
+    }
+    function prefillFromURL(){
+      const q = new URLSearchParams(location.search);
+      ["email","password","fname","lname","dob","phone"].forEach(k=>{
+        const v = q.get(k); if(v!==null) $(k).value = v;
+      });
+    }
+
+    /* --------- QR ومشاركة --------- */
+    function makeQR(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      const link = buildLink();
+      if(!link){ toast("الرجاء تعبئة البريد وكلمة المرور على الأقل"); return; }
+      $("qrcode").innerHTML = "";
+      new QRCode($("qrcode"), {text: link, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H});
+    }
+    async function copyShare(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      const link = buildLink();
+      if(!link){ toast("لا يوجد بيانات كافية لبناء الرابط"); return; }
+      await navigator.clipboard.writeText(link);
+      toast("تم نسخ رابط المشاركة");
+    }
+    function downloadQR(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      const img = $("qrcode").querySelector("img");
+      if(!img){ toast("ولّد QR أولاً"); return; }
+      const a = document.createElement("a");
+      a.href = img.src; a.download = "apple-id-card-qr.png";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    /* --------- حفظ البطاقة كصورة (وضع المشاهدة) --------- */
+    async function saveCardImage(){
+      const card = $("card-root");
+      const canvas = await html2canvas(card, {scale:2, useCORS:true, backgroundColor:null});
+      const dataURL = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataURL; a.download = "apple-id-card.png";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  </script>
+</body>
+</html>
