@@ -43,8 +43,12 @@
     .terms ul{margin:0 1rem}
     .terms .bar{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
 
-    /* زر عين كلمة السر */
-    .eye{background:#2a3345;color:#fff;border:none;border-radius:10px;width:46px;height:42px;display:grid;place-items:center;cursor:pointer}
+    /* صفحة رقم الهاتف */
+    .phone-page{padding:18px}
+    .note{color:#cfe3ff;background:#203048;border:1px solid rgba(255,255,255,.06);padding:10px 12px;border-radius:12px;margin:0 0 12px}
+
+    /* أزرار صغيرة (عين/نرد) */
+    .mini{background:#2a3345;color:#fff;border:none;border-radius:10px;width:46px;height:42px;display:grid;place-items:center;cursor:pointer;font-size:18px}
 
     /* وضع المشاهدة (عرض فقط) */
     .readonly input{pointer-events:none}
@@ -61,11 +65,11 @@
       <div class="head">
         <div class="apple"></div>
         <div class="title">Apple ID</div>
-        <span class="pill" id="stepTag">الخطوة 1/2</span>
+        <span class="pill" id="stepTag">الخطوة 1/3</span>
       </div>
 
       <!-- يظهر في وضع العرض فقط -->
-      <div id="roBanner" class="banner hidden">وضع العرض فقط — يمكنك النسخ أو حفظ البطاقة كصورة</div>
+      <div id="roBanner" class="banner hidden">وضع العرض فقط — يمكنك إدخال رقم الهاتف ثم النسخ أو حفظ البطاقة كصورة</div>
 
       <!-- الصفحة 1: الشروط والأحكام -->
       <div id="page-terms" class="page active">
@@ -80,7 +84,7 @@
               <li>سيتم حفظ موافقتك محلياً على جهازك لتسهيل الاستخدام لاحقاً.</li>
               <li>احرص على تفعيل ميزة العثور على iPhone.</li>
             </ul>
-            <p>الموافقة على الشروط تعني الالتزام بجميع الخطوات التعليمية</p>
+            <p>الموافقة على الشروط تعني الالتزام بجميع الخطوات التعليمية.</p>
           </div>
           <div class="bar">
             <button class="btn" type="button" id="declineBtn">لا أوافق</button>
@@ -89,7 +93,24 @@
         </div>
       </div>
 
-      <!-- الصفحة 2: قائمة البيانات -->
+      <!-- الصفحة 2: إدخال رقم الهاتف -->
+      <div id="page-phone" class="page">
+        <div class="phone-page">
+          <div class="note">أدخل رقم هاتفك للمتابعة. سيتم إضافته تلقائيًا إلى البطاقة.</div>
+          <div class="section">
+            <div class="label"><span>رقم الهاتف</span><span>Phone Number</span></div>
+            <div class="row">
+              <input id="phoneInput" type="tel" placeholder="+9647777777777" autocomplete="tel">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" onclick="backToTerms()">رجوع</button>
+            <button class="btn red" type="button" onclick="proceedPhone()">متابعة</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- الصفحة 3: قائمة البيانات -->
       <div id="page-form" class="page">
         <div class="section">
           <div class="label"><span>البريد الإلكتروني</span><span>Email</span></div>
@@ -104,7 +125,7 @@
           <div class="row">
             <button class="copy" title="نسخ" onclick="copyField('password')">📋</button>
             <input id="password" type="password" placeholder="@VJQRgts" autocomplete="off">
-            <button class="eye" title="إظهار/إخفاء" onclick="togglePass()">👁️</button>
+            <button class="mini" title="Show/Hide" onclick="togglePass()">👁️</button>
           </div>
         </div>
 
@@ -112,15 +133,17 @@
           <div>
             <div class="label"><span>الاسم الأول</span><span>First Name</span></div>
             <div class="row">
-              <button class="copy" title="نسخ" onclick="copyField('fname')">📋</button>
+              <button class="copy" title="Copy" onclick="copyField('fname')">📋</button>
               <input id="fname" type="text" placeholder="Jorge">
+              <button class="mini" title="Generate First Name" onclick="genFirstName()">🎲</button>
             </div>
           </div>
           <div>
             <div class="label"><span>اسم العائلة</span><span>Last Name</span></div>
             <div class="row">
-              <button class="copy" title="نسخ" onclick="copyField('lname')">📋</button>
+              <button class="copy" title="Copy" onclick="copyField('lname')">📋</button>
               <input id="lname" type="text" placeholder="Garcia">
+              <button class="mini" title="Generate Last Name" onclick="genLastName()">🎲</button>
             </div>
           </div>
         </div>
@@ -129,7 +152,8 @@
           <div class="label"><span>تاريخ الميلاد</span><span>Date of Birth</span></div>
           <div class="row">
             <button class="copy" title="نسخ" onclick="copyField('dob')">📋</button>
-            <input id="dob" type="text" placeholder="1967/04/16">
+            <input id="dob" type="text" placeholder="1998/07/21" onblur="validateDOB()" autocomplete="off">
+            <button class="mini" title="Generate DOB 1990–2006" onclick="genDOB()">🎲</button>
           </div>
         </div>
 
@@ -143,33 +167,35 @@
 
         <!-- أزرار التحرير (مخفيّة في وضع العرض فقط) -->
         <div class="actions" id="editActions1">
-          <button class="btn ghost" onclick="genIcloud()">توليد إيميل iCloud</button>
-          <button class="btn ghost" onclick="genPassword()">توليد كلمة مرور</button>
-          <button class="btn" onclick="generateAll()">توليد الكل</button>
-          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
+          <button class="btn ghost" onclick="genIcloud()">Generate iCloud</button>
+          <button class="btn ghost" onclick="genPassword()">Generate Password</button>
+          <button class="btn" onclick="genNames()">Generate Names</button>
+          <button class="btn" onclick="genDOB()">Generate DOB</button>
+          <button class="btn" onclick="generateAll()">Generate All</button>
+          <button class="btn" onclick="copyAll()">Copy All (Text)</button>
         </div>
 
         <div class="actions" id="editActions2">
-          <button class="btn" onclick="copyJSON()">نسخ JSON</button>
-          <button class="btn" onclick="copyCSV()">نسخ CSV</button>
-          <button class="btn" onclick="clearAll()">تفريغ الحقول</button>
-          <button class="btn" onclick="revokeConsent()">إلغاء الموافقة</button>
+          <button class="btn" onclick="copyJSON()">Copy JSON</button>
+          <button class="btn" onclick="copyCSV()">Copy CSV</button>
+          <button class="btn" onclick="clearAll()">Clear</button>
+          <button class="btn" onclick="revokeConsent()">Reset Terms</button>
         </div>
 
         <!-- أزرار المشاركة/QR (مخفيّة في وضع العرض فقط) -->
         <div class="actions" id="qrActions">
-          <button class="btn red" onclick="makeQR()">توليد QR (يفتح نفس الصفحة بالبيانات)</button>
-          <button class="btn" onclick="copyShare()">نسخ رابط المشاركة</button>
-          <button class="btn" onclick="downloadQR()">تحميل QR</button>
+          <button class="btn red" onclick="makeQR()">Generate QR (same page with data)</button>
+          <button class="btn" onclick="copyShare()">Copy Share Link</button>
+          <button class="btn" onclick="downloadQR()">Download QR</button>
         </div>
 
         <!-- أزرار وضع المشاهدة -->
         <div class="actions hidden" id="viewActions">
-          <button class="btn" onclick="copyAll()">نسخ كل الحقول (Text)</button>
-          <button class="btn red" onclick="saveCardImage()">حفظ البطاقة كصورة</button>
+          <button class="btn" onclick="copyAll()">Copy All (Text)</button>
+          <button class="btn red" onclick="saveCardImage()">Save Card as Image</button>
         </div>
 
-        <p class="hint">في وضع المشاهدة، لا يمكن تعديل البيانات. يمكنك فقط النسخ أو حفظ البطاقة كصورة.</p>
+        <p class="hint">في وضع المشاهدة، لا يمكن تعديل البيانات (عدا إدخال رقم الهاتف في الخطوة السابقة). يمكنك النسخ أو حفظ البطاقة كصورة.</p>
         <div class="qrbox"><div id="qrcode"></div></div>
         <div class="footer">© نسخة تجريبية — لا تستخدم بيانات حقيقية.</div>
       </div>
@@ -178,55 +204,83 @@
 
   <script>
     // === الإعدادات ===
-    // اجعلها "" ليستخدم الرابط الحالي تلقائيًا، أو ضع رابط GitHub Pages الثابت إن رغبت
-    let BASE_URL = ""; // مثال: "https://YOURUSER.github.io/YOURREPO/";
-    const TAC_KEY = "tacAccepted_v2";
+    let BASE_URL = ""; // اتركه فارغًا ليستخدم الرابط الحالي تلقائيًا
+    const TAC_KEY = "tacAccepted_v3"; // مفتاح جديد حتى تظهر خطوة الهاتف للمستخدمين السابقين
     const $ = (id) => document.getElementById(id);
-
     let READ_ONLY = false; // يتفعّل تلقائيًا عند وجود باراميترات
 
-    /* --------- دوال عرض الصفحات --------- */
+    /* --------- تنقّل الصفحات --------- */
+    function setStep(whichId){
+      const stepTag = $("stepTag");
+      const step = (whichId === "page-terms") ? "1/3" :
+                   (whichId === "page-phone") ? "2/3" : "3/3";
+      if (stepTag) stepTag.textContent = "الخطوة " + step;
+    }
     function showPage(whichId){
-      const pages = document.querySelectorAll(".page");
-      pages.forEach(p => { p.classList.remove("active"); p.style.display = "none"; });
+      document.querySelectorAll(".page").forEach(p => { p.classList.remove("active"); p.style.display = "none"; });
       const target = $(whichId);
       if (target){
         target.classList.add("active");
         target.style.display = "block";
-        const stepTag = $("stepTag");
-        if (stepTag) stepTag.textContent = (whichId === "page-terms") ? "الخطوة 1/2" : "الخطوة 2/2";
+        setStep(whichId);
       }
     }
+    function backToTerms(){ showPage("page-terms"); }
     function goToTerms(){ showPage("page-terms"); try{ localStorage.removeItem(TAC_KEY); }catch(_){} }
     function acceptTerms(e){
       if (e) e.preventDefault();
       try{ localStorage.setItem(TAC_KEY, "yes"); }catch(_){}
-      showPage("page-form");
-      if (READ_ONLY){ lockUIForViewer(); } // في وضع المشاهدة نغلق التعديل بعد الموافقة
+      // بعد الموافقة نذهب دائماً لصفحة الهاتف
+      showPage("page-phone");
+      // لا نغلق الواجهة الآن؛ الإغلاق يتم بعد إدخال الرقم والانتقال للصفحة الثالثة
     }
     function decline(e){
       if (e) e.preventDefault();
       alert("تم إلغاء المتابعة.");
     }
 
-    /* --------- تهيئة وربط الأزرار --------- */
+    /* --------- تهيئة --------- */
     document.addEventListener("DOMContentLoaded", () => {
-      const agreeBtn   = $("agreeBtn");
-      const declineBtn = $("declineBtn");
-      if (agreeBtn)   agreeBtn.addEventListener("click", acceptTerms);
-      if (declineBtn) declineBtn.addEventListener("click", decline);
+      $("agreeBtn")?.addEventListener("click", acceptTerms);
+      $("declineBtn")?.addEventListener("click", decline);
 
       prefillFromURL();
       detectReadOnlyByURL();
 
-      // ❗ الشروط تظهر دائماً إذا لم يتم قبولها بعد — حتى في وضع المشاهدة
+      // الشروط تظهر إذا لم تُقبل بعد
       if (localStorage.getItem(TAC_KEY) === "yes"){
-        showPage("page-form");
-        if (READ_ONLY){ lockUIForViewer(); }
+        // بعد قبول سابق: نذهب لصفحة الهاتف مباشرة
+        showPage("page-phone");
       } else {
         showPage("page-terms");
       }
     });
+
+    /* --------- صفحة الهاتف: متابعة --------- */
+    function proceedPhone(){
+      const input = $("phoneInput");
+      const val = (input.value || "").trim();
+      if (!val){
+        alert("يرجى إدخال رقم الهاتف للمتابعة.");
+        input.focus();
+        return;
+      }
+      // تحقّق بسيط للطول/الأرقام
+      const digits = val.replace(/[^\d+]/g,"");
+      if (digits.length < 7){
+        alert("رقم الهاتف غير صالح.");
+        input.focus();
+        return;
+      }
+      // مرّر الرقم إلى حقل الصفحة الثالثة
+      $("phone").value = val;
+
+      // انتقل لصفحة المعلومات
+      showPage("page-form");
+
+      // في وضع المشاهدة: أغلق التعديل الآن
+      if (READ_ONLY){ lockUIForViewer(); }
+    }
 
     /* --------- مساعدات --------- */
     function toast(msg){ alert(msg); }
@@ -238,7 +292,7 @@
     function detectReadOnlyByURL(){
       const q = new URLSearchParams(location.search);
       READ_ONLY = ["email","password","fname","lname","dob","phone"].some(k => q.get(k));
-      // إظهار شريط "عرض فقط" لاحقاً بعد الموافقة والانتقال لصفحة البيانات
+      // نترك إدخال الهاتف متاحاً حتى في وضع المشاهدة كما طُلب
     }
     function lockUIForViewer(){
       $("roBanner").classList.remove("hidden");
@@ -250,6 +304,62 @@
       ["editActions1","editActions2","qrActions"].forEach(id=>$(id).classList.add("hidden"));
       $("viewActions").classList.remove("hidden");
       $("page-form").classList.add("readonly");
+    }
+
+    /* --------- توليد التاريخ (1990–2006) + تحقّق --------- */
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function daysInMonth(y,m){ return new Date(y, m, 0).getDate(); }
+    function randomDOB(){
+      const year = 1990 + Math.floor(Math.random() * (2006 - 1990 + 1));
+      const month = 1 + Math.floor(Math.random() * 12);
+      const day = 1 + Math.floor(Math.random() * daysInMonth(year, month));
+      return `${year}/${pad2(month)}/${pad2(day)}`;
+    }
+    function genDOB(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      $("dob").value = randomDOB();
+    }
+    function validateDOB(){
+      const v = $("dob").value.trim();
+      if(!v) return;
+      const m = v.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if(!m){ toast("صيغة التاريخ غير صحيحة. استخدم YYYY/MM/DD"); return; }
+      let y = +m[1], mo = +m[2], d = +m[3];
+      if(y<1990 || y>2006){ toast("التاريخ يجب أن يكون بين 1990 و 2006"); return; }
+      if(mo<1 || mo>12){ toast("الشهر غير صحيح"); return; }
+      const dim = daysInMonth(y, mo);
+      if(d<1 || d>dim){ toast("اليوم غير صحيح لهذا الشهر"); return; }
+      $("dob").value = `${y}/${pad2(mo)}/${pad2(d)}`;
+    }
+
+    /* --------- توليد أسماء إنجليزية --------- */
+    const FIRST_NAMES = [
+      "James","John","Robert","Michael","William","David","Richard","Joseph","Thomas","Charles",
+      "Daniel","Matthew","Anthony","Mark","Donald","Steven","Paul","Andrew","Joshua","Kenneth",
+      "Emily","Emma","Olivia","Sophia","Isabella","Mia","Amelia","Harper","Evelyn","Abigail",
+      "Benjamin","Lucas","Mason","Ethan","Alexander","Henry","Jackson","Sebastian","Aiden","Logan",
+      "Ava","Charlotte","Lily","Grace","Chloe","Zoe","Hannah","Ella","Natalie","Sofia"
+    ];
+    const LAST_NAMES = [
+      "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+      "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
+      "Lee","Perez","Thompson","White","Harris","Sanchez","Clark","Ramirez","Lewis","Robinson",
+      "Walker","Young","Allen","King","Wright","Scott","Torres","Nguyen","Hill","Green",
+      "Adams","Baker","Nelson","Carter","Mitchell","Roberts","Turner","Phillips","Campbell","Parker"
+    ];
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function genFirstName(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      $("fname").value = pick(FIRST_NAMES);
+    }
+    function genLastName(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      $("lname").value = pick(LAST_NAMES);
+    }
+    function genNames(){
+      if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
+      genFirstName();
+      genLastName();
     }
 
     /* --------- نسخ/تفريغ/توليد --------- */
@@ -310,9 +420,7 @@ Phone: ${d.phone}`;
     }
     function generateAll(){
       if(READ_ONLY){ toast("غير مسموح في وضع العرض فقط"); return; }
-      genIcloud();
-      genPassword();
-      makeQR();
+      genIcloud(); genPassword(); genNames(); genDOB(); makeQR();
     }
     function togglePass(){
       const f = $("password");
@@ -381,4 +489,3 @@ Phone: ${d.phone}`;
   </script>
 </body>
 </html>
-
