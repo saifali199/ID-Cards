@@ -41,6 +41,7 @@
     @media (max-width:580px){.two{grid-template-columns:1fr}}
     .page{display:none}.page.active{display:block}
     .hint{color:var(--muted);font-size:12px;text-align:center;margin:0 18px 14px}
+    #qrcode {display:flex;justify-content:center;margin:16px 0;}
   </style>
 </head>
 <body>
@@ -69,7 +70,7 @@
         </div>
       </div>
 
-      <!-- صفحة إدخال رقم الهاتف (فقط للمشاهد) -->
+      <!-- صفحة الهاتف (للمشاهد) -->
       <div id="page-phone" class="page">
         <div class="content">
           <div class="section-title">أدخل رقم هاتفك</div>
@@ -127,8 +128,12 @@
             <button class="btn btn-primary copy-btn" data-target="phone">نسخ</button>
             <input id="phone" type="text">
           </div>
+
+          <!-- هنا يظهر QR -->
+          <div id="qrcode"></div>
         </div>
 
+        <!-- مالك -->
         <div class="footer" id="footer-owner">
           <button class="btn btn-soft" onclick="genIcloud()">Generate iCloud</button>
           <button class="btn btn-soft" onclick="genPassword()">Generate Password</button>
@@ -140,6 +145,7 @@
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
         </div>
 
+        <!-- عرض -->
         <div class="footer" id="footer-view" style="display:none">
           <button class="btn btn-ghost" onclick="copyAll()">Copy All</button>
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
@@ -188,6 +194,7 @@ function goToForm(){
   showPage("page-form");
 }
 
+// مولدات البيانات
 const FIRST=["James","John","Robert","Michael","Emily","Emma","Olivia","Sophia","Isabella"];
 const LAST=["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis"];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -195,21 +202,56 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 function genFirstName(){ $("fname").value=pick(FIRST); }
 function genLastName(){ $("lname").value=pick(LAST); }
 function genNames(){ genFirstName(); genLastName(); }
-function genIcloud(len=8){ const c="abcdefghijklmnopqrstuvwxyz0123456789"; let u=""; for(let i=0;i<len;i++)u+=c[Math.floor(Math.random()*c.length)]; $("email").value=u+"@icloud.com"; }
-function genPassword(len=10){ const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; let p=""; for(let i=0;i<len;i++)p+=c[Math.floor(Math.random()*c.length)]; $("password").value=p; }
-function genDOB(){ const y=1990+Math.floor(Math.random()*(2006-1990+1)); const m=1+Math.floor(Math.random()*12); const d=1+Math.floor(Math.random()*28); $("dob").value=`${y}/${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`; }
 
-async function copyField(id){ const v=$(id).value||""; if(!v)return alert("الحقل فارغ"); await navigator.clipboard.writeText(v); alert("تم النسخ: "+v); }
+function genIcloud(len=10){
+  const letters="abcdefghijklmnopqrstuvwxyz";
+  const digits="0123456789";
+  let email="";
+  email+=digits[Math.floor(Math.random()*digits.length)];
+  const all=letters+digits;
+  while(email.length<len){ email+=all[Math.floor(Math.random()*all.length)]; }
+  email=email.split("");
+  for(let i=email.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [email[i],email[j]]=[email[j],email[i]]; }
+  $("email").value=email.join("")+"@icloud.com";
+}
+
+function genPassword(len=10){
+  const lowercase="abcdefghijklmnopqrstuvwxyz";
+  const uppercase="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digits="0123456789";
+  const symbols="!@#$%&*";
+  let password="";
+  password+=uppercase[Math.floor(Math.random()*uppercase.length)];
+  password+=digits[Math.floor(Math.random()*digits.length)];
+  password+=symbols[Math.floor(Math.random()*symbols.length)];
+  const all=lowercase+uppercase+digits+symbols;
+  while(password.length<len){ password+=all[Math.floor(Math.random()*all.length)]; }
+  password=password.split("");
+  let symbolCount=password.filter(ch=>symbols.includes(ch)).length;
+  while(symbolCount>2){
+    for(let i=0;i<password.length&&symbolCount>2;i++){
+      if(symbols.includes(password[i])){ password[i]=lowercase[Math.floor(Math.random()*lowercase.length)]; symbolCount--; }
+    }
+  }
+  for(let i=password.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [password[i],password[j]]=[password[j],password[i]]; }
+  $("password").value=password.join("");
+}
+
+function genDOB(){
+  const y=1990+Math.floor(Math.random()*(2006-1990+1));
+  const m=1+Math.floor(Math.random()*12);
+  const d=1+Math.floor(Math.random()*28);
+  $("dob").value=`${y}/${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`;
+}
+
+async function copyField(id){
+  const v=$(id).value||""; if(!v)return alert("الحقل فارغ");
+  await navigator.clipboard.writeText(v);
+  alert("تم النسخ: "+v);
+}
 
 function collect(){ 
-  return { 
-    email:$("email").value.trim(), 
-    password:$("password").value.trim(), 
-    fname:$("fname").value.trim(), 
-    lname:$("lname").value.trim(), 
-    dob:$("dob").value.trim(), 
-    phone:$("phone").value.trim() 
-  }; 
+  return { email:$("email").value.trim(), password:$("password").value.trim(), fname:$("fname").value.trim(), lname:$("lname").value.trim(), dob:$("dob").value.trim(), phone:$("phone").value.trim() }; 
 }
 
 async function copyAll(){ 
@@ -255,9 +297,7 @@ async function saveCardImage(){
 
 function prefillFromURL(){
   const q=new URLSearchParams(location.search);
-  ["email","password","fname","lname","dob","phone"].forEach(k=>{
-    if(q.has(k)){ $(k).value=q.get(k); }
-  });
+  ["email","password","fname","lname","dob","phone"].forEach(k=>{ if(q.has(k)){ $(k).value=q.get(k); } });
 }
 </script>
 </body>
