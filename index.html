@@ -17,36 +17,29 @@
       --row-border: #e9e9f2;
       --primary: #2563eb;
       --primary-600:#1e50bd;
-      --danger: #ef4444;
       --ghost:#f3f4f6;
       --shadow: 0 10px 40px rgba(0,0,0,.18);
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:#f2f3f6}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:#f2f3f6;height:100%}
     .backdrop{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;padding:24px}
     .card{width:min(720px,96vw);background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
     .header{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--card-border)}
     .title{font-size:20px;font-weight:700}
-    .close{margin-inline-start:auto;background:#fff;border:1px solid var(--card-border);width:36px;height:36px;display:grid;place-items:center;border-radius:999px;cursor:pointer;font-size:18px}
     .content{padding:16px 16px 0}
-    .footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 16px 16px;border-top:1px solid var(--card-border);background:#fff}
+    .footer{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;padding:14px 16px 16px;border-top:1px solid var(--card-border);background:#fff}
     .section-title{font-weight:600;margin:12px 6px 8px}
     .note{color:var(--muted);font-size:13px;margin:0 6px 12px}
     .row{display:flex;align-items:center;gap:10px;background:var(--row-bg);border:1px solid var(--row-border);border-radius:12px;padding:10px 12px;margin:8px 0}
     .row input{flex:1;background:transparent;border:none;outline:none;font-size:16px;color:var(--text);padding:8px 6px}
     .btn{border:none;cursor:pointer;font-weight:600;border-radius:12px;padding:10px 14px;display:inline-flex;align-items:center;gap:8px}
-    .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-600)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-600)}
     .btn-ghost{background:#fff;color:var(--text);border:1px solid var(--card-border)}
     .btn-soft{background:var(--ghost);color:var(--text)}
-    .btn-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:10px;background:#fff;border:1px solid var(--card-border);font-size:18px}
-    .btn-copy{background:#ef4444;color:#fff;border:none}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media (max-width:580px){.two{grid-template-columns:1fr}}
     .page{display:none}.page.active{display:block}
-    .banner{margin:0 16px 8px;padding:8px 12px;border-radius:12px;background:#eef2ff;color:#1d4ed8;font-size:13px;border:1px solid #dfe7ff}
-    .hidden{display:none !important}
-    .qrbox{display:grid;place-items:center;padding:16px}
     .hint{color:var(--muted);font-size:12px;text-align:center;margin:0 18px 14px}
   </style>
 </head>
@@ -55,27 +48,19 @@
     <div class="card" id="card-root">
       <div class="header">
         <div class="title" id="modalTitle">الشروط والأحكام</div>
-        <button class="close" id="closeBtn" title="إغلاق">✕</button>
       </div>
 
-      <div id="roBanner" class="banner hidden">وضع العرض — يمكنك تعديل الحقول يدويًا والنسخ أو حفظ البطاقة كصورة.</div>
-
-      <!-- الشروط -->
+      <!-- صفحة الشروط -->
       <div id="page-terms" class="page active">
         <div class="content">
           <div class="section-title">الشروط والأحكام</div>
           <p class="note">الموافقة مطلوبة للمتابعة.</p>
           <div class="row" style="align-items:start; padding:14px">
-            <div style="line-height:1.8">
-              <strong>محفظة حساب APPLE ID:</strong>
-              <ul style="margin:8px 18px">
-                <li>هذا الكارت هو محفظة لبيانات حسابك.</li>
-                <li>يتم إنشاء الحساب عن طريق المستخدم وهو آمن ومضمون.</li>
-                <li>أنت المسؤول عن أي استخدام غير قانوني.</li>
-                <li>سيتم حفظ موافقتك محليًا على جهازك.</li>
-                <li>احرص على تفعيل ميزة العثور على iPhone.</li>
-              </ul>
-            </div>
+            <ul>
+              <li>هذا الكارت هو محفظة لبيانات حسابك.</li>
+              <li>يتم إنشاء الحساب عن طريق المستخدم وهو آمن.</li>
+              <li>أنت المسؤول عن أي استخدام غير قانوني.</li>
+            </ul>
           </div>
         </div>
         <div class="footer">
@@ -84,221 +69,196 @@
         </div>
       </div>
 
-      <!-- صفحة الهاتف (للمشاهِد فقط) -->
+      <!-- صفحة إدخال رقم الهاتف (فقط للمشاهد) -->
       <div id="page-phone" class="page">
         <div class="content">
-          <div class="section-title">رقم الهاتف</div>
-          <p class="note">أدخل رقم هاتفك (اختياري) ليُضاف إلى البطاقة. يمكنك تعديله لاحقًا.</p>
+          <div class="section-title">أدخل رقم هاتفك</div>
           <div class="row">
-            <input id="phoneInput" type="tel" placeholder="+9647777777777" autocomplete="tel">
+            <input id="userPhone" type="text" value="+964" autocomplete="off">
           </div>
+          <p class="note">الرقم يجب أن يبدأ بـ +964 ويليه 9 أرقام على الأقل.</p>
         </div>
         <div class="footer">
-          <button class="btn btn-ghost" onclick="backToTerms()">رجوع</button>
-          <button class="btn btn-primary" onclick="proceedPhone()">متابعة</button>
+          <button class="btn btn-ghost" onclick="showPage('page-terms')">رجوع</button>
+          <button class="btn btn-primary" onclick="goToForm()">متابعة</button>
         </div>
       </div>
 
       <!-- صفحة المعلومات -->
       <div id="page-form" class="page">
-        <div id="roTopNote" class="banner hidden">وضع العرض: أزرار «نسخ» نصّية، وكلمة المرور معروضة دائمًا ويمكنك تعديل الحقول يدويًا.</div>
-
         <div class="content">
           <div class="section-title">البريد الإلكتروني</div>
           <div class="row">
-            <button class="btn btn-copy copy-btn" data-target="email">📋</button>
-            <input id="email" type="email" placeholder="name@icloud.com" autocomplete="off">
+            <button class="btn btn-primary copy-btn" data-target="email">نسخ</button>
+            <input id="email" type="email">
           </div>
 
           <div class="section-title">كلمة المرور</div>
           <div class="row">
-            <button class="btn btn-copy copy-btn" data-target="password">📋</button>
-            <!-- ستكون نص دائمًا في وضع العرض -->
-            <input id="password" type="text" placeholder="@VJQRgts" autocomplete="off">
-            <button class="btn-icon" id="eyeBtn" title="إظهار/إخفاء" onclick="togglePass()">👁️</button>
+            <button class="btn btn-primary copy-btn" data-target="password">نسخ</button>
+            <input id="password" type="text">
           </div>
 
           <div class="two">
             <div>
               <div class="section-title">First Name</div>
               <div class="row">
-                <button class="btn btn-copy copy-btn" data-target="fname">📋</button>
-                <input id="fname" type="text" placeholder="Jorge">
-                <button class="btn-icon" title="Generate First Name" onclick="genFirstName()">🎲</button>
+                <button class="btn btn-primary copy-btn" data-target="fname">نسخ</button>
+                <input id="fname" type="text">
               </div>
             </div>
             <div>
               <div class="section-title">Last Name</div>
               <div class="row">
-                <button class="btn btn-copy copy-btn" data-target="lname">📋</button>
-                <input id="lname" type="text" placeholder="Garcia">
-                <button class="btn-icon" title="Generate Last Name" onclick="genLastName()">🎲</button>
+                <button class="btn btn-primary copy-btn" data-target="lname">نسخ</button>
+                <input id="lname" type="text">
               </div>
             </div>
           </div>
 
           <div class="section-title">Date of Birth</div>
           <div class="row">
-            <button class="btn btn-copy copy-btn" data-target="dob">📋</button>
-            <input id="dob" type="text" placeholder="1998/07/21" onblur="validateDOB()" autocomplete="off">
-            <button class="btn-icon" title="Generate DOB 1990–2006" onclick="genDOB()">🎲</button>
+            <button class="btn btn-primary copy-btn" data-target="dob">نسخ</button>
+            <input id="dob" type="text">
           </div>
 
           <div class="section-title">Phone Number</div>
           <div class="row">
-            <button class="btn btn-copy copy-btn" data-target="phone">📋</button>
-            <input id="phone" type="text" placeholder="+9647777777777">
+            <button class="btn btn-primary copy-btn" data-target="phone">نسخ</button>
+            <input id="phone" type="text">
           </div>
-
-          <p class="hint">يمكنك إنشاء رمز QR لمشاركة نفس الصفحة بالبيانات — أو حفظ البطاقة كصورة.</p>
-          <div class="qrbox"><div id="qrcode"></div></div>
         </div>
 
-        <div class="footer" id="ownerFooter">
+        <div class="footer" id="footer-owner">
           <button class="btn btn-soft" onclick="genIcloud()">Generate iCloud</button>
           <button class="btn btn-soft" onclick="genPassword()">Generate Password</button>
           <button class="btn btn-soft" onclick="genNames()">Generate Names</button>
           <button class="btn btn-soft" onclick="genDOB()">Generate DOB</button>
           <button class="btn btn-ghost" onclick="copyAll()">Copy All</button>
+          <button class="btn btn-ghost" onclick="copyShare()">Share Link</button>
           <button class="btn btn-primary" onclick="makeQR()">Create QR</button>
+          <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
         </div>
 
-        <div class="footer hidden" id="viewerFooter">
+        <div class="footer" id="footer-view" style="display:none">
           <button class="btn btn-ghost" onclick="copyAll()">Copy All</button>
-          <button class="btn btn-primary" onclick="saveCardImage()">Save Card as Image</button>
-          <button class="btn btn-soft" onclick="goToPhoneFromForm()">رجوع لرقم الهاتف</button>
+          <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    let BASE_URL = "";
-    const TAC_KEY = "tacAccepted_modal_v2";
-    const $ = id => document.getElementById(id);
-    let READ_ONLY = false;
+<script>
+const $=id=>document.getElementById(id);
 
-    function setTitle(t){ $("modalTitle").textContent = t; }
-    function showPage(id){
-      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-      $(id).classList.add("active");
-      if(id==="page-terms") setTitle("الشروط والأحكام");
-      if(id==="page-phone") setTitle("إدخال رقم الهاتف");
-      if(id==="page-form")  setTitle("محفظة حساب Apple ID");
-    }
-    function backToTerms(){ showPage("page-terms"); }
-    function goToPhoneFromForm(){ if(READ_ONLY) showPage("page-phone"); }
+document.addEventListener("DOMContentLoaded",()=>{
+  $("agreeBtn").addEventListener("click",()=>{
+    const q=new URLSearchParams(location.search);
+    if(q.toString()){ showPage("page-phone"); } // مشاهد
+    else { showPage("page-form"); }             // مالك
+  });
+  $("declineBtn").addEventListener("click",()=>alert("تم الإلغاء"));
+  document.querySelectorAll(".copy-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>copyField(btn.dataset.target));
+  });
+  prefillFromURL();
+  toggleFooter();
+});
 
-    document.addEventListener("DOMContentLoaded", ()=>{
-      // إغلاق بسيط
-      $("closeBtn").addEventListener("click", ()=>{
-        const onTerms = $("page-terms").classList.contains("active");
-        if(!onTerms) backToTerms(); else alert("أغلق الصفحة إذا أردت الخروج.");
-      });
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $(id).classList.add("active");
+  $("modalTitle").textContent=
+    (id==="page-terms")?"الشروط والأحكام":
+    (id==="page-phone")?"إدخال رقم الهاتف":
+    "محفظة حساب Apple ID";
+}
 
-      $("agreeBtn").addEventListener("click", acceptTerms);
-      $("declineBtn").addEventListener("click", ()=>alert("تم الإلغاء"));
+function toggleFooter(){
+  const q=new URLSearchParams(location.search);
+  if(q.toString()){ $("footer-owner").style.display="none"; $("footer-view").style.display="flex"; }
+}
 
-      // ربط كل أزرار النسخ بدالة واحدة
-      document.querySelectorAll(".copy-btn").forEach(btn=>{
-        btn.addEventListener("click", ()=>copyField(btn.dataset.target));
-      });
+function goToForm(){
+  let phone=$("userPhone").value.trim();
+  if(!phone.startsWith("+964")){ alert("⚠️ يجب أن يبدأ الرقم بـ +964"); return;}
+  let rest=phone.replace("+964","");
+  if(rest.length<9 || isNaN(rest)){ alert("⚠️ يجب أن يحتوي الرقم على 9 أرقام بعد +964"); return;}
+  $("phone").value=phone;
+  showPage("page-form");
+}
 
-      prefillFromURL();
-      detectReadOnlyByURL();
+const FIRST=["James","John","Robert","Michael","Emily","Emma","Olivia","Sophia","Isabella"];
+const LAST=["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis"];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
 
-      // ابدأ من الشروط دائمًا
-      showPage("page-terms");
+function genFirstName(){ $("fname").value=pick(FIRST); }
+function genLastName(){ $("lname").value=pick(LAST); }
+function genNames(){ genFirstName(); genLastName(); }
+function genIcloud(len=8){ const c="abcdefghijklmnopqrstuvwxyz0123456789"; let u=""; for(let i=0;i<len;i++)u+=c[Math.floor(Math.random()*c.length)]; $("email").value=u+"@icloud.com"; }
+function genPassword(len=10){ const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; let p=""; for(let i=0;i<len;i++)p+=c[Math.floor(Math.random()*c.length)]; $("password").value=p; }
+function genDOB(){ const y=1990+Math.floor(Math.random()*(2006-1990+1)); const m=1+Math.floor(Math.random()*12); const d=1+Math.floor(Math.random()*28); $("dob").value=`${y}/${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`; }
 
-      // كلمة المرور ظاهرة افتراضيًا
-      $("password").type = "text";
-    });
+async function copyField(id){ const v=$(id).value||""; if(!v)return alert("الحقل فارغ"); await navigator.clipboard.writeText(v); alert("تم النسخ: "+v); }
 
-    function acceptTerms(){
-      try{ localStorage.setItem(TAC_KEY,"yes"); }catch(_){}
-      // المالك -> المعلومات مباشرة / المشاهِد -> رقم الهاتف
-      showPage(READ_ONLY ? "page-phone" : "page-form");
-      if(READ_ONLY){
-        enableViewerMode();
-      }else{
-        enableOwnerMode();
-      }
-    }
+function collect(){ 
+  return { 
+    email:$("email").value.trim(), 
+    password:$("password").value.trim(), 
+    fname:$("fname").value.trim(), 
+    lname:$("lname").value.trim(), 
+    dob:$("dob").value.trim(), 
+    phone:$("phone").value.trim() 
+  }; 
+}
 
-    function enableOwnerMode(){
-      $("ownerFooter").classList.remove("hidden");
-      $("viewerFooter").classList.add("hidden");
-      $("roBanner").classList.add("hidden");
-      $("roTopNote").classList.add("hidden");
-      // أزرار النسخ تعود أيقونات
-      document.querySelectorAll(".copy-btn").forEach(b=>b.textContent="📋");
-      // زر العين ظاهر
-      $("eyeBtn").classList.remove("hidden");
-    }
+async function copyAll(){ 
+  const d=collect(); 
+  const t =
+`Email: ${d.email}
+Password: ${d.password}
+First Name: ${d.fname}
+Last Name: ${d.lname}
+DOB: ${d.dob}
+Phone: ${d.phone}`;
+  await navigator.clipboard.writeText(t); 
+  alert("✅ تم نسخ جميع الحقول مع البيانات المدخلة"); 
+}
 
-    // === التعديلات المطلوبة لوضع العرض ===
-    function enableViewerMode(){
-      READ_ONLY = true;
-      $("roBanner").classList.remove("hidden");
-      $("roTopNote").classList.remove("hidden");
-      $("viewerFooter").classList.remove("hidden");
-      $("ownerFooter").classList.add("hidden");
-      // أزرار النسخ نص "نسخ"
-      document.querySelectorAll(".copy-btn").forEach(b=>b.textContent="نسخ");
-      // كلمة المرور ظاهرة دائمًا وإخفاء زر العين
-      $("password").type = "text";
-      $("eyeBtn").classList.add("hidden");
-      // السماح بالتحرير يدويًا: لا نطبّق أي readOnly على الحقول
-    }
+function buildLink(){ 
+  const d=collect(); 
+  if(!d.email || !d.password) return null;
+  const params=new URLSearchParams(d); 
+  return location.origin+location.pathname+"?"+params; 
+}
 
-    function proceedPhone(){
-      const val = ($("phoneInput").value||"").trim();
-      // الهاتف اختياري الآن كما طلبت
-      if(val) $("phone").value = val;
-      showPage("page-form");
-      if(READ_ONLY) enableViewerMode();
-    }
+async function copyShare(){ 
+  const link=buildLink(); 
+  if(!link){ alert("⚠️ الرجاء إدخال البريد وكلمة المرور على الأقل"); return; }
+  await navigator.clipboard.writeText(link); 
+  alert("✅ تم نسخ رابط المشاركة:\n" + link); 
+}
 
-    function detectReadOnlyByURL(){
-      const q = new URLSearchParams(location.search);
-      READ_ONLY = ["email","password","fname","lname","dob","phone"].some(k=>q.get(k));
-      if(READ_ONLY){
-        // سنحوّل أزرار النسخ إلى نص ونجعل كلمة المرور ظاهرة عندما نصل لصفحة المعلومات
-        $("viewerFooter").classList.remove("hidden");
-      } else {
-        $("ownerFooter").classList.remove("hidden");
-      }
-    }
+function makeQR(){ 
+  const link=buildLink(); 
+  if(!link){ alert("⚠️ لا يوجد بيانات كافية"); return; }
+  $("qrcode").innerHTML=""; 
+  new QRCode($("qrcode"),{text:link,width:220,height:220}); 
+}
 
-    function togglePass(){
-      const f=$("password");
-      f.type = (f.type==="password")?"text":"password";
-    }
+async function saveCardImage(){ 
+  const canvas=await html2canvas($("card-root"),{scale:2}); 
+  const url=canvas.toDataURL("image/png"); 
+  const a=document.createElement("a"); 
+  a.href=url;a.download="apple-id-card.png";a.click(); 
+}
 
-    // توليد/تحقق/نسخ وبقية الأدوات
-    function toast(m){ alert(m); }
-    function pad2(n){return String(n).padStart(2,"0")}
-    function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
-    function randomDOB(){ const y=1990+Math.floor(Math.random()*(2006-1990+1)); const m=1+Math.floor(Math.random()*12); const d=1+Math.floor(Math.random()*daysInMonth(y,m)); return `${y}/${pad2(m)}/${pad2(d)}`; }
-    function genDOB(){ $("dob").value=randomDOB(); }
-    function validateDOB(){ const v=$("dob").value.trim(); if(!v)return; const m=v.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/); if(!m)return toast("صيغة غير صحيحة: YYYY/MM/DD"); const y=+m[1],mo=+m[2],d=+m[3]; if(y<1990||y>2006)return toast("السنة يجب أن تكون بين 1990 و 2006"); const dim=daysInMonth(y,mo); if(mo<1||mo>12||d<1||d>dim)return toast("تاريخ غير صحيح"); $("dob").value=`${y}/${pad2(mo)}/${pad2(d)}`; }
-
-    const FIRST=["James","John","Robert","Michael","William","Emily","Emma","Olivia","Sophia","Isabella","Mia","Amelia","Benjamin","Lucas","Ethan","Alexander","Henry","Ava","Charlotte","Lily","Grace","Chloe","Hannah","Ella","Natalie"];
-    const LAST=["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Wilson","Anderson","Taylor","Moore","Jackson","Martin","Lee","Perez","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen","King","Wright","Scott","Torres","Nguyen"];
-    const pick=a=>a[Math.floor(Math.random()*a.length)];
-    function genFirstName(){ $("fname").value=pick(FIRST); }
-    function genLastName(){ $("lname").value=pick(LAST); }
-    function genNames(){ genFirstName(); genLastName(); }
-
-    async function copyField(id){ const v=$(id).value||""; if(!v) return toast("الحقل فارغ"); await navigator.clipboard.writeText(v); toast("تم النسخ: "+v); }
-    async function copyAll(){ const d=collect(); const t=`Email: ${d.email}\nPassword: ${d.password}\nFirst Name: ${d.fname}\nLast Name: ${d.lname}\nDate of Birth: ${d.dob}\nPhone: ${d.phone}`; await navigator.clipboard.writeText(t); toast("تم نسخ جميع الحقول"); }
-
-    function collect(){ return { email:$("email").value.trim(), password:$("password").value.trim(), fname:$("fname").value.trim(), lname:$("lname").value.trim(), dob:$("dob").value.trim(), phone:$("phone").value.trim() }; }
-    function dynBase(){ if(BASE_URL && BASE_URL.trim()) return BASE_URL; const u=new URL(location.href); return u.origin+u.pathname.replace(/index\.html$/,''); }
-    function buildLink(){ const d=collect(); if(!d.email||!d.password) return null; const params=new URLSearchParams(d); let base=dynBase(); if(!base.endsWith("/")) base+="/"; return base+"?"+params.toString(); }
-    function prefillFromURL(){ const q=new URLSearchParams(location.search); ["email","password","fname","lname","dob","phone"].forEach(k=>{const v=q.get(k); if(v!==null) $(k).value=v; }); }
-    function makeQR(){ const link=buildLink(); if(!link) return toast("أكمل البريد وكلمة المرور"); $("qrcode").innerHTML=""; new QRCode($("qrcode"),{text:link,width:220,height:220,correctLevel:QRCode.CorrectLevel.H}); }
-    async function saveCardImage(){ const canvas=await html2canvas($("card-root"),{scale:2,useCORS:true,backgroundColor:null}); const url=canvas.toDataURL("image/png"); const a=document.createElement("a"); a.href=url; a.download="apple-id-card.png"; a.click(); }
-  </script>
+function prefillFromURL(){
+  const q=new URLSearchParams(location.search);
+  ["email","password","fname","lname","dob","phone"].forEach(k=>{
+    if(q.has(k)){ $(k).value=q.get(k); }
+  });
+}
+</script>
 </body>
 </html>
