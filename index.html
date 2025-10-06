@@ -42,16 +42,6 @@
     .page{display:none}.page.active{display:block}
     .hint{color:var(--muted);font-size:12px;text-align:center;margin:0 18px 14px}
     .qrbox{display:grid;place-items:center;padding:16px}
-.card {
-  width: min(720px, 96vw);
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-  overflow-y: auto;   /* ✅ السماح بالتمرير */
-  max-height: 90vh;   /* ✅ تحديد أقصى ارتفاع */
-}
-
   </style>
 </head>
 <body>
@@ -69,13 +59,10 @@
           <div class="row" style="align-items:start; padding:14px">
             <ul>
               <li>هذا الكارت هو محفظة لبيانات حسابك.</li>
-              <li>يتم انشاء الحساب عن طريق المستخدم وهو آمن تماماً ومضمون مدى الحياة.</li>
-              <li>أنت المسؤول عن أي استخدام غير قانوني أو مخالف للسياسات.</li>
-              <li>سيتم حفظ موافقتك محلياً على جهازك لتسهيل الاستخدام لاحقاً.</li>
-              <li>احرص على تفعيل ميزة العثور على iPhone.</li>
-              <li>استخدم رقم هاتفك لغرض تسهيل عملية فتح الحساب في حال وجود مشكلة مستقبلا.</li>
-              <li>تأكد من ان دولة الحساب هي العراق لضمان تفعيل كامل الخدمات.</li>
-              <li>ننصح بعدم تغيير معلومات البطاقة لغرض استخدام الكارت في حالة فقدان المعلومات.</li>             
+              <li>يتم إنشاء الحساب من قبل المستخدم وهو آمن ومضمون.</li>
+              <li>أنت المسؤول عن أي استخدام غير قانوني.</li>
+              <li>تأكد من أن دولة الحساب هي العراق.</li>
+              <li>ننصح بعدم تعديل البيانات بعد إنشائها.</li>
             </ul>
           </div>
         </div>
@@ -85,14 +72,14 @@
         </div>
       </div>
 
-      <!-- صفحة إدخال رقم الهاتف (فقط للمشاهد) -->
+      <!-- صفحة إدخال رقم الهاتف -->
       <div id="page-phone" class="page">
         <div class="content">
           <div class="section-title">أدخل رقم هاتفك</div>
           <div class="row">
-            <input id="userPhone" type="text" value="+964" autocomplete="off">
+            <input id="userPhone" type="text" placeholder="أدخل رقم هاتفك فقط" autocomplete="off">
           </div>
-          <p class="note">الرقم يجب أن يبدأ بـ +964 ويليه 9 أرقام على الأقل.</p>
+          <p class="note">يمكنك كتابة أي رقم هاتف بدون مفتاح دولة.</p>
         </div>
         <div class="footer">
           <button class="btn btn-ghost" onclick="showPage('page-terms')">رجوع</button>
@@ -176,8 +163,7 @@ const $=id=>document.getElementById(id);
 document.addEventListener("DOMContentLoaded",()=>{
   $("agreeBtn").addEventListener("click",()=>{
     const q=new URLSearchParams(location.search);
-    if(q.toString()){ showPage("page-phone"); } // مشاهد
-    else { showPage("page-form"); }             // مالك
+    if(q.toString()){ showPage("page-phone"); } else { showPage("page-form"); }
   });
   $("declineBtn").addEventListener("click",()=>alert("تم الإلغاء"));
   document.querySelectorAll(".copy-btn").forEach(btn=>{
@@ -203,9 +189,6 @@ function toggleFooter(){
 
 function goToForm(){
   let phone=$("userPhone").value.trim();
-  if(!phone.startsWith("+964")){ alert("⚠️ يجب أن يبدأ الرقم بـ +964"); return;}
-  let rest=phone.replace("+964","");
-  if(rest.length<9 || isNaN(rest)){ alert("⚠️ يجب أن يحتوي الرقم على 9 أرقام بعد +964"); return;}
   $("phone").value=phone;
   showPage("page-form");
 }
@@ -315,20 +298,10 @@ function saveCSV(){
   const d = collect();
   const header = ["Email","Password","First Name","Last Name","DOB","Phone"];
   let row = [d.email, d.password, d.fname, d.lname, d.dob, d.phone];
-
-  // جلب البيانات القديمة من التخزين المحلي
   let saved = JSON.parse(localStorage.getItem("csvData") || "[]");
-
-  // إضافة السطر الجديد
   saved.push(row);
-
-  // حفظه في التخزين المحلي
   localStorage.setItem("csvData", JSON.stringify(saved));
-
-  // بناء CSV كامل
   let csv = header.join(",") + "\n" + saved.map(r => r.join(",")).join("\n");
-
-  // تنزيل الملف
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -347,5 +320,3 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
-
-
