@@ -262,7 +262,15 @@ function genDOB(){
   $("dob").value=`${y}/${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`; 
 }
 
-async function copyField(id){ const v=$(id).value||""; if(!v)return alert("الحقل فارغ"); await navigator.clipboard.writeText(v); alert("تم النسخ: "+v); }
+/* === تعديل النسخ للبريد === */
+async function copyField(id){
+  let v=$(id).value||"";
+  if(!v)return alert("الحقل فارغ");
+  if(id==="email" && v.endsWith("@icloud.com")){
+    v = v.replace("@icloud.com","");
+  }
+  await navigator.clipboard.writeText(v);
+  alert("تم النسخ: " + v);
 
 function collect(){ 
   return { 
@@ -350,3 +358,4 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
