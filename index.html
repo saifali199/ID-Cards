@@ -85,6 +85,7 @@
           <p class="note">الموافقة مطلوبة للمتابعة.</p>
           <div class="row" style="align-items:start; padding:14px">
             <ul>
+              <li>الرجاء مشاهدة الفيديو التعليمي قبل كل شيء.</li>
               <li>هذا الكارت هو محفظة لبيانات حسابك.</li>
               <li>يتم انشاء الحساب عن طريق المستخدم وهو آمن تماماً ومضمون مدى الحياة.</li>
               <li>أنت المسؤول عن أي استخدام غير قانوني أو مخالف للسياسات.</li>
@@ -99,6 +100,7 @@
         <div class="footer">
           <button class="btn btn-ghost" id="declineBtn">إلغاء</button>
           <button class="btn btn-primary" id="agreeBtn">موافق</button>
+          <button class="btn btn-primary" onclick="openTutorial()">🎓 مشاهدة الفيديو التعليمي</button>
         </div>
       </div>
 
@@ -176,18 +178,26 @@
           <button class="btn btn-primary" onclick="saveQR()">Save QR</button>
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
           <button class="btn btn-primary" onclick="saveCSV()">Save CSV</button>
+          <button class="btn btn-primary" onclick="openTutorial()">🎓 مشاهدة الفيديو التعليمي</button>
         </div>
 
         <!-- عرض -->
         <div class="footer" id="footer-view" style="display:none">
           <button class="btn btn-ghost" onclick="copyAll()">Copy All</button>
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
+          <button class="btn btn-primary" onclick="openTutorial()">🎓 مشاهدة الفيديو التعليمي</button>
         </div>
       </div>
     </div>
   </div>
 
 <script>
+  /* === فتح صفحة الفيديو التعليمي === */
+function openTutorial() {
+  // 🔗 ضع هنا رابط صفحة الفيديو التي أنشأتها
+  const videoURL = "https://youtu.be/A4BeboClvyc"; 
+  window.open(videoURL, "_blank");
+}
 const $=id=>document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded",()=>{
@@ -399,6 +409,7 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
 
