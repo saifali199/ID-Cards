@@ -281,12 +281,26 @@ function genPassword(len = 10) {
   $("password").value = pass;
 }
 /* === نهاية التعديل === */
-function genDOB(){ 
-  const y=1990+Math.floor(Math.random()*(2006-1990+1)); 
-  const m=1+Math.floor(Math.random()*12); 
-  const d=1+Math.floor(Math.random()*28); 
-  $("dob").value=`${y}/${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`; 
+/* === تعديل توليد تاريخ الميلاد بصيغة عربية: يوم - شهر - سنة === */
+function genDOB() {
+  const monthsAr = [
+    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+  ];
+
+  const y = 1990 + Math.floor(Math.random() * (2006 - 1990 + 1)); 
+  const m = Math.floor(Math.random() * 12); // 0–11
+  const d = 1 + Math.floor(Math.random() * 28); 
+
+  const day = String(d).padStart(2, "0"); // اليوم من رقمين
+  const month = monthsAr[m];
+  const year = y;
+
+  // النتيجة: اليوم ثم الشهر ثم السنة
+  $("dob").value = `${day} ${month} ${year}`;
 }
+/* === نهاية التعديل === */
+
 
 /* === تعديل النسخ للبريد === */
 async function copyField(id){
@@ -385,6 +399,7 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
 
