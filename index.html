@@ -230,31 +230,57 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 function genFirstName(){ $("fname").value=pick(FIRST); }
 function genLastName(){ $("lname").value=pick(LAST); }
 function genNames(){ genFirstName(); genLastName(); }
-function genIcloud(len=10){ 
-  const c="abcdefghijklmnopqrstuvwxyz0123456789"; 
-  let u=""; 
-  let hasNum=false;
-  for(let i=0;i<len;i++){
-    let ch=c[Math.floor(Math.random()*c.length)];
-    if(/[0-9]/.test(ch)) hasNum=true;
-    u+=ch;
-  }
-  if(!hasNum) u=u.slice(0,-1)+"1";
-  $("email").value=u+"@icloud.com"; 
+/* === تعديل توليد الإيميل حسب الشروط === */
+function genIcloud(len = 14) {
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const nums = "0123456789";
+
+  // عدد الأرقام بين 3 و 4
+  const numCount = 3 + Math.floor(Math.random() * 2); // 3 أو 4
+  const lowerCount = len - numCount;
+
+  // إنشاء الأرقام
+  const numChars = Array.from({ length: numCount }, () => nums[Math.floor(Math.random() * nums.length)]).join('');
+
+  // إنشاء الأحرف الصغيرة
+  const lowerChars = Array.from({ length: lowerCount }, () => lower[Math.floor(Math.random() * lower.length)]).join('');
+
+  // دمج وخلط عشوائي
+  let username = (lowerChars + numChars).split('').sort(() => Math.random() - 0.5).join('');
+
+  $("email").value = username + "@icloud.com";
 }
-function genPassword(len=10){ 
-  const lower="abcdefghijklmnopqrstuvwxyz";
-  const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const nums="0123456789";
-  const symbols="!@#$%^&*";
-  let all=lower+upper+nums+symbols;
-  let pass="";
-  pass+=symbols[Math.floor(Math.random()*symbols.length)];
-  for(let i=1;i<len;i++){
-    pass+=all[Math.floor(Math.random()*all.length)];
-  }
-  $("password").value=pass; 
+/* === نهاية التعديل === */
+/* === تعديل توليد كلمة المرور حسب الشروط === */
+function genPassword(len = 10) {
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const nums = "0123456789";
+  const symbols = "!@#$%^&*";
+
+  // نحدد عدد الأرقام العشوائي بين 2 و 3
+  const numCount = 2 + Math.floor(Math.random() * 2); // 2 أو 3
+  const numChars = Array.from({ length: numCount }, () => nums[Math.floor(Math.random() * nums.length)]).join('');
+
+  // حرف كبير واحد فقط
+  const upperChar = upper[Math.floor(Math.random() * upper.length)];
+
+  // رمز واحد فقط
+  const symbolChar = symbols[Math.floor(Math.random() * symbols.length)];
+
+  // باقي الأحرف الصغيرة
+  const remainingCount = len - (numCount + 2); // باقي الطول بعد الرقمين + الرمز + الحرف الكبير
+  const lowerChars = Array.from({ length: remainingCount }, () => lower[Math.floor(Math.random() * lower.length)]).join('');
+
+  // تجميع الكلمة
+  let pass = upperChar + numChars + symbolChar + lowerChars;
+
+  // خلط الأحرف عشوائياً لزيادة العشوائية
+  pass = pass.split('').sort(() => Math.random() - 0.5).join('');
+
+  $("password").value = pass;
 }
+/* === نهاية التعديل === */
 function genDOB(){ 
   const y=1990+Math.floor(Math.random()*(2006-1990+1)); 
   const m=1+Math.floor(Math.random()*12); 
@@ -359,5 +385,6 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
