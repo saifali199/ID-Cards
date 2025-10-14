@@ -312,22 +312,45 @@ function genDOB() {
   $("dob").value = `${day} ${month} ${year}`;
 }
 /* === نهاية التعديل === */
-/* === توليد QR بصيغة SVG === */
+/* === توليد QR بصيغة SVG (يظهر داخل الصفحة) === */
 function makeQR_SVG() {
   const link = buildLink();
-  if (!link) { alert("⚠️ لا يوجد بيانات كافية"); return; }
+  if (!link) {
+    alert("⚠️ لا يوجد بيانات كافية");
+    return;
+  }
 
   // إنشاء كائن QR جديد
-  const qr = qrcode(0, 'M'); // 0 = تلقائي الحجم, M = جودة متوسطة
+  const qr = qrcode(0, 'M');
   qr.addData(link);
   qr.make();
 
   // إنشاء كود SVG
-  const svgTag = qr.createSvgTag({ scalable: true });
+  const svgTag = qr.createSvgTag({
+    scalable: true,
+    cellColor: "#000000",
+    background: "#ffffff"
+  });
 
-  // وضعه داخل العنصر
-  $("qrcode").innerHTML = svgTag;
+  // تنظيف أي محتوى قديم
+  const qrBox = $("qrcode");
+  qrBox.innerHTML = "";
+
+  // تحويل الـ SVG من نص إلى عنصر فعلي
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = svgTag.trim();
+  const svgEl = tempDiv.firstChild;
+
+  // ضبط الحجم الافتراضي لظهور واضح
+  svgEl.style.width = "220px";
+  svgEl.style.height = "220px";
+  svgEl.style.display = "block";
+  svgEl.style.margin = "auto";
+
+  // إضافته إلى الصفحة
+  qrBox.appendChild(svgEl);
 }
+
 
 /* === حفظ الـ QR كملف SVG === */
 function saveQR_SVG() {
@@ -444,6 +467,7 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
 
