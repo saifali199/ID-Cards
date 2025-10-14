@@ -321,7 +321,7 @@ function makeQR_SVG() {
   }
 
   // إنشاء كائن QR جديد
-  const qr = qrcode(0, 'M');
+  const qr = qrcode(0, 'H');
   qr.addData(link);
   qr.make();
 
@@ -341,15 +341,27 @@ function makeQR_SVG() {
   tempDiv.innerHTML = svgTag.trim();
   const svgEl = tempDiv.firstChild;
 
-  // ضبط الحجم الافتراضي لظهور واضح
-  svgEl.style.width = "550px";
-  svgEl.style.height = "550px";
+  // ✅ ضبط الحجم الحقيقي بالسنتيمتر (جاهز للطباعة)
+  svgEl.setAttribute("width", "2.56cm");
+  svgEl.setAttribute("height", "2.56cm");
+  svgEl.style.width = "2.56cm";
+  svgEl.style.height = "2.56cm";
   svgEl.style.display = "block";
   svgEl.style.margin = "auto";
 
-  // إضافته إلى الصفحة
+  // إضافته إلى الصفحة للعرض
   qrBox.appendChild(svgEl);
+
+  // حفظ الـ SVG بنفس المقاسات عند التصدير
+  const blob = new Blob([svgEl.outerHTML], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "apple-id-qr.svg";
+  a.click();
+  URL.revokeObjectURL(url);
 }
+
 
 
 /* === حفظ الـ QR كملف SVG === */
@@ -467,6 +479,7 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
 
