@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Apple ID – بطاقة معلومات</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root{
@@ -179,6 +179,9 @@
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
           <button class="btn btn-primary" onclick="saveCSV()">Save CSV</button>
           <button class="btn btn-primary" onclick="openTutorial()">🎓 مشاهدة الفيديو التعليمي</button>
+          <button class="btn btn-primary" onclick="makeQR_SVG()">Create SVG QR</button>
+          <button class="btn btn-primary" onclick="saveQR_SVG()">Save SVG QR</button>
+
         </div>
 
         <!-- عرض -->
@@ -310,6 +313,39 @@ function genDOB() {
   $("dob").value = `${day} ${month} ${year}`;
 }
 /* === نهاية التعديل === */
+/* === توليد QR بصيغة SVG === */
+function makeQR_SVG() {
+  const link = buildLink();
+  if (!link) { alert("⚠️ لا يوجد بيانات كافية"); return; }
+
+  // إنشاء كائن QR جديد
+  const qr = qrcode(0, 'M'); // 0 = تلقائي الحجم, M = جودة متوسطة
+  qr.addData(link);
+  qr.make();
+
+  // إنشاء كود SVG
+  const svgTag = qr.createSvgTag({ scalable: true });
+
+  // وضعه داخل العنصر
+  $("qrcode").innerHTML = svgTag;
+}
+
+/* === حفظ الـ QR كملف SVG === */
+function saveQR_SVG() {
+  const svg = $("qrcode").querySelector("svg");
+  if (!svg) { alert("⚠️ قم أولاً بإنشاء QR بصيغة SVG"); return; }
+
+  const serializer = new XMLSerializer();
+  const svgBlob = new Blob([serializer.serializeToString(svg)], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(svgBlob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "apple-id-qr.svg";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
 
 
 /* === تعديل النسخ للبريد === */
@@ -409,6 +445,7 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
 
 
 
