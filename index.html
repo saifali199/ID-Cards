@@ -170,8 +170,10 @@
           <button class="btn btn-soft" onclick="genPassword()">Generate Password</button>
           <button class="btn btn-soft" onclick="genNames()">Generate Names</button>
           <button class="btn btn-soft" onclick="genDOB()">Generate DOB</button>
-          <button class="btn btn-primary" onclick="makeQR_SVG()">Create SVG QR</button>
-          <button class="btn btn-primary" onclick="saveQR_SVG()">Save SVG QR</button>
+          <button class="btn btn-primary" onclick="makeQR_PNG_Fixed()">Create PNG QR</button>
+
+
+          
           <button class="btn btn-ghost" onclick="copyAll()">Copy All</button>
           <button class="btn btn-ghost" onclick="copyShare()">Share Link</button>
           <button class="btn btn-primary" onclick="saveCardImage()">Save Card</button>
@@ -205,8 +207,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   toggleFooter();
 });
 
-/* === عرض QR داخل الصفحة فقط === */
-function makeQR_SVG() {
+/* === QR PNG عالي الدقة بقياس مضبوط 2.56 cm في Word === */
+function makeQR_PNG_Fixed() {
   const link = buildLink();
   if (!link) return alert("⚠️ لا يوجد بيانات كافية");
 
@@ -214,41 +216,65 @@ function makeQR_SVG() {
   qr.addData(link);
   qr.make();
 
-  const svgTag = qr.createSvgTag({
-    scalable: true,
-    cellColor: "#000000",
-    background: "#ffffff"
-  });
+  const qrSizeCm = 2.56;   // الحجم النهائي المطلوب في Word
+  const wordDpi = 96;       // DPI الذي يستخدمه Word فعليًا
+  const pxPerCm = wordDpi / 2.54;
+  const sizePx = Math.round(qrSizeCm * pxPerCm);
 
+  // ✳️ نرسم داخليًا ×4 لزيادة الوضوح
+  const scaleFactor = 4;
+  const canvas = document.createElement("canvas");
+  canvas.width = sizePx * scaleFactor;
+  canvas.height = sizePx * scaleFactor;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#ffffff"; // خلفية بيضاء
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#000000";
+
+  const cellCount = qr.getModuleCount();
+  const cellSize = canvas.width / cellCount;
+
+  for (let r = 0; r < cellCount; r++) {
+    for (let c = 0; c < cellCount; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  // ✳️ نصغّر الناتج إلى الحجم الصحيح
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = sizePx;
+  finalCanvas.height = sizePx;
+  const fctx = finalCanvas.getContext("2d");
+  fctx.drawImage(canvas, 0, 0, sizePx, sizePx);
+
+  const dataURL = finalCanvas.toDataURL("image/png", 1.0);
+
+  // عرض بالحجم الحقيقي في الصفحة
   const qrBox = $("qrcode");
   qrBox.innerHTML = "";
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = svgTag.trim();
-  const svgEl = tempDiv.firstChild;
+  const img = document.createElement("img");
+  img.src = dataURL;
+  img.style.width = `${qrSizeCm}cm`;
+  img.style.height = `${qrSizeCm}cm`;
+  img.style.display = "block";
+  img.style.margin = "auto";
+  img.style.border = "1px solid #ccc";
+  qrBox.appendChild(img);
 
-  svgEl.setAttribute("width", "2.56cm");
-  svgEl.setAttribute("height", "2.56cm");
-  svgEl.style.width = "2.56cm";
-  svgEl.style.height = "2.56cm";
-  svgEl.style.display = "block";
-  svgEl.style.margin = "auto";
-
-  qrBox.appendChild(svgEl);
-}
-
-/* === حفظ QR كملف SVG جاهز للطباعة === */
-function saveQR_SVG() {
-  const qrSvg = $("qrcode").querySelector("svg");
-  if (!qrSvg) return alert("⚠️ قم أولاً بإنشاء QR بصيغة SVG");
-
-  const blob = new Blob([qrSvg.outerHTML], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
+  // حفظ تلقائي
   const a = document.createElement("a");
-  a.href = url;
-  a.download = "apple-id-qr.svg";
+  a.href = dataURL;
+  a.download = "apple-id-qr.png";
   a.click();
-  URL.revokeObjectURL(url);
 }
+
+
+
+
+
 
 function openTutorial() {
   window.open("https://youtu.be/A4BeboClvyc", "_blank");
@@ -376,3 +402,4 @@ function prefillFromURL(){
 </script>
 </body>
 </html>
+
